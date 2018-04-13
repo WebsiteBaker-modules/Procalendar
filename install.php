@@ -23,19 +23,23 @@
 
 if (defined('WB_URL')) {
 
+    $sAppPath   = str_replace(DIRECTORY_SEPARATOR,'/', WB_PATH);
+    $sAddonPath = str_replace(DIRECTORY_SEPARATOR,'/', __DIR__);
     // create tables from sql dump file
-    if (is_readable(__DIR__.'/install-struct.sql')) {
-        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
+    if (\is_readable($sAddonPath.'/install-struct.php')) {
+        $database->SqlImport($sAddonPath.'/install-struct.php', TABLE_PREFIX, __FILE__ );
     }
 
     // Make calendar images directory
-    if (!is_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/')){ make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');}
+    if (!\is_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/')){ make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');}
+    if (!\is_readable($sAddonPath.'/images')){make_dir($sAddonPath.'/images');}
+
 }
 
 /*
     // Insert info into the search table
   // Module query info
-  $field_info = array();
+  $field_info = [];
   $field_info['page_id'] = 'page_id';
   $field_info['title'] = 'page_title';
   $field_info['link'] = 'link';

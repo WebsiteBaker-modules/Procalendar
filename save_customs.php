@@ -21,7 +21,7 @@
 
 */
 
-require (dirname(dirname(__DIR__ )).'/config.php');
+if (!defined('SYSTEM_RUN')) {require( (dirname(dirname((__DIR__)))).'/config.php');}
 
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
@@ -30,36 +30,38 @@ require(WB_PATH.'/modules/admin.php');
  * $page_id      = $admin->get_post('page_id');
  * $section_id   = $admin->get_post('section_id');
  */
-$sBackLink = WB_URL.'/modules/'.basename(__DIR__).'/modify_settings.php?page_id='.(int)$page_id.'&amp;section_id='.(int)$section_id;
+if (!function_exists('isProcalcFuncLoaded')){require(__DIR__.'/functions.php');}
 
-$usecustom1           = ($admin->get_post('usecustom1'));
-$custom1              = trim($admin->get_post('custom1'));
-$customtemplate1      = ($admin->get_post('customtemplate1'));
-$usecustom2           = ($admin->get_post('usecustom2'));
-$custom2              = trim($admin->get_post('custom2')).'';
-$customtemplate2      = $admin->get_post('customtemplate2');
-$usecustom3           = $admin->get_post('usecustom3');
-$custom3              = trim($admin->get_post('custom3')).'';
-$customtemplate3      = $admin->get_post('customtemplate3');
-$usecustom4           = ($admin->get_post('usecustom4'));
-$custom4              = trim($admin->get_post('custom4')).'';
-$customtemplate4      = $admin->get_post('customtemplate4');
-$usecustom5           = ($admin->get_post('usecustom5'));
-$custom5              = trim($admin->get_post('custom5')).'';
-$customtemplate5      = $admin->get_post('customtemplate5');
-$usecustom6           = $admin->get_post('usecustom6');
-$custom6              = trim($admin->get_post('custom6')).'';
-$customtemplate6      = $admin->get_post('customtemplate6');
-$usecustom7           = $admin->get_post('usecustom7');
-$custom7              = trim($admin->get_post('custom7')).'';
-$customtemplate7      = $admin->get_post('customtemplate7');
-$usecustom8           = $admin->get_post('usecustom8');
-$custom8              = trim($admin->get_post('custom8')).'';
-$customtemplate8      = $admin->get_post('customtemplate8');
-$usecustom9           = $admin->get_post('usecustom9');
-$custom9              = trim($admin->get_post('custom9')).'';
-$customtemplate9      = $admin->get_post('customtemplate9');
-$resize               = $admin->get_post('resize');
+$sBackLink = WB_URL.'/modules/'.basename(__DIR__).'/modify_settings.php?page_id='.(int)$page_id.'&section_id='.(int)$section_id;
+
+$usecustom1           = $admin->StripCodeFromText($admin->get_post('usecustom1'),24);
+$custom1              = trim($admin->StripCodeFromText($admin->get_post('custom1'),24));
+$customtemplate1      = $admin->StripCodeFromText($admin->get_post('customtemplate1'),24);
+$usecustom2           = $admin->StripCodeFromText($admin->get_post('usecustom2'),24);
+$custom2              = trim($admin->StripCodeFromText($admin->get_post('custom2'),24)).'';
+$customtemplate2      = $admin->StripCodeFromText($admin->get_post('customtemplate2'),24);
+$usecustom3           = $admin->StripCodeFromText($admin->get_post('usecustom3'),24);
+$custom3              = trim($admin->StripCodeFromText($admin->get_post('custom3'),24)).'';
+$customtemplate3      = $admin->StripCodeFromText($admin->get_post('customtemplate3'),24);
+$usecustom4           = $admin->StripCodeFromText($admin->get_post('usecustom4'),24);
+$custom4              = trim($admin->StripCodeFromText($admin->get_post('custom4'),24)).'';
+$customtemplate4      = $admin->StripCodeFromText($admin->get_post('customtemplate4'),24);
+$usecustom5           = $admin->StripCodeFromText($admin->get_post('usecustom5'),24);
+$custom5              = trim($admin->StripCodeFromText($admin->get_post('custom5'),24)).'';
+$customtemplate5      = $admin->StripCodeFromText($admin->get_post('customtemplate5'),24);
+$usecustom6           = $admin->StripCodeFromText($admin->get_post('usecustom6'),24);
+$custom6              = trim($admin->StripCodeFromText($admin->get_post('custom6'),24)).'';
+$customtemplate6      = $admin->StripCodeFromText($admin->get_post('customtemplate6'),24);
+$usecustom7           = $admin->StripCodeFromText($admin->get_post('usecustom7'),24);
+$custom7              = trim($admin->StripCodeFromText($admin->get_post('custom7'),24)).'';
+$customtemplate7      = $admin->StripCodeFromText($admin->get_post('customtemplate7'),24);
+$usecustom8           = $admin->StripCodeFromText($admin->get_post('usecustom8'),24);
+$custom8              = trim($admin->StripCodeFromText($admin->get_post('custom8'),24)).'';
+$customtemplate8      = $admin->StripCodeFromText($admin->get_post('customtemplate8'),24);
+$usecustom9           = $admin->StripCodeFromText($admin->get_post('usecustom9'),24);
+$custom9              = trim($admin->StripCodeFromText($admin->get_post('custom9'),24)).'';
+$customtemplate9      = $admin->StripCodeFromText($admin->get_post('customtemplate9'),24);
+$resize               = (int)$admin->get_post('resize');
 
     $sql  = ''
           . 'UPDATE `'.TABLE_PREFIX.'mod_procalendar_settings` SET'
@@ -90,15 +92,15 @@ $resize               = $admin->get_post('resize');
           . '`usecustom9`=\''.$database->escapeString($usecustom9).'\','
           . '`customtemplate9`=\''.$database->escapeString($customtemplate9).'\','
           . '`custom9`=\''.$database->escapeString($custom9).'\','
-          . '`resize`=\''.$database->escapeString($resize).'\' '
+          . '`resize`= '.(int)$database->escapeString($resize).' '
           . 'WHERE `section_id`='.(int)$section_id.'';
 
-if (!$database->query($sql)||$database->is_error())
-{
-  $admin->print_error($database->get_error(), $sBackLink);
-} else {
-  $admin->print_success($TEXT['SUCCESS'], $sBackLink);
-}
+    if (!$database->query($sql)||$database->is_error())
+    {
+      $admin->print_error($database->get_error(), $sBackLink);
+    } else {
+      $admin->print_success($TEXT['SUCCESS'], $sBackLink);
+    }
 
-$admin->print_footer();
+    $admin->print_footer();
 

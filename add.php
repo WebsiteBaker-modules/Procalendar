@@ -21,7 +21,7 @@
 
 */
 
-if (!defined('WB_PATH')) exit("Cannot access this file directly");
+if (!defined('SYSTEM_RUN')) {header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found'); echo '404 File not found'; flush(); exit;}
 
 
 $ct1 = '<div class="field_line">
@@ -47,7 +47,20 @@ $ct4 = '<div class="field_line">
 ';
 
 $ct5 = '[[[CUSTOM_CONTENT]]]';
-$header = '[CALENDAR]';
+
+$ct6 = '
+<div class="field_line">
+  <div class="field_title">[CUSTOM_NAME]</div>
+  <a href="mailto:[CUSTOM_CONTENT]">[CUSTOM_NAME]</a>
+</div>
+';
+
+$header = '
+<div style="font-size:80%; text-align:right;">
+[NEW_ENTRY]
+</div>
+[CALENDAR]';
+$footer = '';
 $posttempl = '<div class="event_details">
   <h2>[NAME]</h2>
   <div class="info_block">
@@ -58,6 +71,9 @@ $posttempl = '<div class="event_details">
     [CUSTOM4]
     [CUSTOM5]
     [CUSTOM6]
+    [CUSTOM7]
+    [CUSTOM8]
+    [CUSTOM9]
     [CATEGORY]
   </div>
 [CONTENT]
@@ -66,27 +82,43 @@ $posttempl = '<div class="event_details">
 ';
 
 // insert data into pages table
-$database->query("INSERT INTO ".TABLE_PREFIX."mod_procalendar_settings SET page_id = '$page_id',
+$database->query(
+"INSERT INTO ".TABLE_PREFIX."mod_procalendar_settings SET page_id = '$page_id',
     section_id = '$section_id',
+    settings = '',
     startday = 0,
     usetime = 0,
     useformat = 'yyyy-mm-dd',
     useifformat = 'Y-m-d',
-    customtemplate1 = '$ct1',
     usecustom1 = 1,
     custom1 = 'Text field',
-    customtemplate2 = '$ct2',
+    customtemplate1 = '$ct1',
     usecustom2 = 2,
     custom2 = 'Text area',
-    customtemplate3 = '$ct3',
+    customtemplate2 = '$ct2',
     usecustom3 = 3,
     custom3 = 'WB link',
-    customtemplate4 = '$ct4',
+    customtemplate3 = '$ct3',
     usecustom4 = 4,
     custom4 = 'Image',
-    customtemplate5 = '$ct5',
-    usecustom5 = 1,
+    customtemplate4 = '$ct4',
+    usecustom5 = 0,
     custom5 = 'Droplet',
-    posttempl = '$posttempl',
-    header = '$header'
+    customtemplate5 = '$ct5',
+    usecustom6 = 0,
+    custom6 = 'E-Mail',
+    customtemplate6 = '$ct6',
+    usecustom7 = 0,
+    custom7 = '',
+    customtemplate7 = '',
+    usecustom8 = 0,
+    custom8 = '',
+    customtemplate8 = '',
+    usecustom9 = 0,
+    custom9 = '',
+    customtemplate9 = '',
+    resize = 0,
+    header = '$header',
+    footer = '$footer',
+    posttempl = '$posttempl'
 ");

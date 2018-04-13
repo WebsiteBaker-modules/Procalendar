@@ -21,38 +21,40 @@
 
 */
 
-if (!defined('WB_PATH')) exit("Cannot access this file directly");
+/* -------------------------------------------------------- */
+// Must include code to stop this file being accessed directly
+if (!defined('SYSTEM_RUN')) { header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found'); flush(); exit; }
+/* -------------------------------------------------------- */
+if (!function_exists('make_dir')){require(WB_PATH.'/framework/functions.php');}
 
-require_once(WB_PATH.'/framework/functions.php');
-require_once(__DIR__.'/functions.php');
+if (!function_exists('isProcalcFuncLoaded')){require(__DIR__.'/functions.php');}
+
 $year  = date("o");
 $month = date("n");
 $day   = date("j");
+$today = date("Y-m-d");
 
-/*
-$month=date("n");
-$year=date("Y");
-$day=date("j");
-*/
 // $day = "";
 if ((isset($_GET['day']))and($_GET['day']!="")) {
-    $day = $_GET['day'];
+    $day = (int)$_GET['day'];
+#    $day = ($day<10 ? '0'.$day : $day);
 }
 
 if (isset($_GET['edit'])) {
-    $editMode = $_GET['edit'];
+    $editMode = $admin->StripCodeFromText($_GET['edit']);
 } else {
     $editMode = "no";
 }
 if (isset($_GET['dayview'])) {
     $dayview = (int)$_GET['dayview'];
 } else {
-    $dayview = (int)0;
+    $dayview = 0;
 }
-if ((isset($_GET['month']))and($_GET['month']!="")) {
+if ((isset($_GET['month']))&&($_GET['month']!="")) {
     $month = (int)$_GET['month'];
+#    $month = ($month<10 ? '0'.$month : $month);
 }
-if ((isset($_GET['year']))and((int)$_GET['year']!="-")) {
+if ((isset($_GET['year']))&&((int)$_GET['year']!="-")) {
   $year = (int)$_GET['year'];
 }
 if (isset($_GET['show'])) {
@@ -65,16 +67,23 @@ if (isset($_GET['id'])) {
 } else {
   $edit_id = 0;
 }
-    // Make calendar images directory
-    if (!is_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/')){ make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');}
+// Make calendar images directory
+if (!is_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/')){ make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');}
 
 $tm_start = "$year-$month-1";
 $tm_end = "$year-$month-".DaysCount($month,$year);
+
+$tm_start = $year.'-'.$month.'-1';
+$tm_end = $year.'-'.$month.'-'.DaysCount($month,$year);
+
 $actions = fillActionArray($tm_start, $tm_end, $section_id);
 
 $action_types = fillActionTypes($section_id);
 
 $IsBackend = ((isset($admin) || ($admin instanceof admin))?true:false); // change Luisehahne
+$IsMonthOverview = $dayview;
+
+$localVariables = compact(array_keys(get_defined_vars()));
 
 // For some php reason this must be here and not in the functions file where it was.
 // If in functions the ckeditor will error with array_key_exists() expects parameter 2 to be array, null given in .../modules/ckeditor/include.php on line 182
@@ -89,14 +98,21 @@ $IsBackend = ((isset($admin) || ($admin instanceof admin))?true:false); // chang
       }
     } else {
       $id_list=array("short","long");
-      require(WB_PATH.'/modules/'.WYSIWYG_EDITOR.'/include.php');
+//      require(WB_PATH.'/modules/'.WYSIWYG_EDITOR.'/include.php');
     }
   }
 if (!function_exists('show_wysiwyg_editor')){require(WB_PATH.'/modules/'.WYSIWYG_EDITOR.'/include.php');}
-?><div class="procal modify_content">
+?><div class="procal modify_content w3-container">
 <?php
+// change to load template
+  ShowCalendar($localVariables);
+  ShowActionEditor($localVariables);
+  ShowActionListEditor($localVariables);
+/*
   ShowCalendar($month, $year, $actions,$section_id,true);
   ShowActionEditor($actions, $day, $show, $dayview, $editMode, $month, $year, $edit_id);
   ShowActionListEditor($actions, $day, $page_id, $dayview );
+*/
  ?>
 </div>
+

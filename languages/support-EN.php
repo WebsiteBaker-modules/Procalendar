@@ -1,47 +1,7 @@
-<?php
-
-/*
-
- Website Baker Project <http://www.websitebaker.org/>
- Copyright (C) 2004-2006, Ryan Djurovich
-
- Website Baker is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- Website Baker is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Website Baker; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-require('../../../config.php');
-
-// Include WB admin wrapper script
-require(WB_PATH.'/modules/admin.php');
-
-if (LANGUAGE_LOADED) {        // load languagepack
-  if(file_exists(WB_PATH."/modules/procalendar/languages/".LANGUAGE.".php")) {    // if exist proper language mutation
-    require_once(WB_PATH."/modules/procalendar/languages/".LANGUAGE.".php");    // load it
-  } else {
-    require_once(WB_PATH."/modules/procalendar/languages/EN.php");        // else use english
-  }
-}
-
-?>
-
-<div style="width:60%;">
-    <h2><?php echo $CALTEXT['SUPPORT_INFO']; ?></h2>
     <h3>&nbsp;</h3>
     <h3>Options</h3>
     <p>The basic options you can set for an event are:
-<ul>
+    <ul>
         <li><strong>Start date:</strong> the day the event starts. This may be the only day, if it's a one-day event.</li>
         <li><strong>Name:</strong> the name or title of the event.</li>
         <li><strong>Category:</strong> the category or type event, for example workshop, training, meeting, conference. You can add unlimited categories in the Settings. After that, you can select the category of your choice when entering the data for an event.</li>
@@ -110,9 +70,5 @@ if (LANGUAGE_LOADED) {        // load languagepack
 <hr />
 <h3>Edit CSS</h3>
 <p>Like many other WB modules, ProCalendar gives you the opportunity to edit the stylesheets for both frontend and backend. Make sure the CSS-files have writing permissions, otherwise your changes won't be saved.</p>
-</div>
-<br />
-<input type="button" class="edit_button" value="<?php echo $CALTEXT['BACK']; ?>" onclick="javascript: window.location = '<?php echo WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&amp;section_id=$section_id"; ?>';" />
-<?php
-$admin->print_footer();
-?>
+
+

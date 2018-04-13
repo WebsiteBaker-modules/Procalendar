@@ -23,10 +23,10 @@
 */
 
 $module_directory    = 'procalendar';
-$module_name         = 'ProCalendar v1.3.14';
+$module_name         = 'ProCalendar v1.4.0-dev.41';
 $module_function     = 'page';
-$module_version      = '1.3.14';
-$module_designed_for = '2.10.0';
+$module_version      = '1.4.0-dev.41';
+$module_platform     = '2.10.0';
 $module_author       = 'David Ilicz Klementa, Burkhard Hekers, Jurgen Nijhuis, John Maats';
 $module_license      = 'GNU General Public License';
 $module_description  = 'Event calendar, based on MyCalendar by Burkhard Hekers (that was based on Calendar Module from David Ilicz Klementa)';
@@ -34,6 +34,9 @@ $module_description  = 'Event calendar, based on MyCalendar by Burkhard Hekers (
 
 $module_home         = 'http://www.argosmedia.net/wb/pages/procalendar.php';
 changelog
+
+v1.4.0-dev.8
+php 7.2 ready
 
 version 1.3.8 xx.xx.2016
 + font color in eventlist depends on background color now (thx to gnom: http://forum.websitebaker.org/index.php/topic,28883.msg202558.html#msg202558)

@@ -1,0 +1,31 @@
+<!-- BEGIN main_block -->
+<div class="w3-row">
+    <div class="w3-twothird w3-container w3-green">
+        <form name="modify_startday" method="post" action="<?php echo WB_URL; ?>/modules/procalendar/save_settings.php">
+          <input type="hidden" name="page_id" value="{page_id}">
+          <input type="hidden" name="section_id" value="{section_id}">
+          <input type="hidden" name="type" value="startd">
+          <h2>{CALTEXT_CAL-OPTIONS}</h2>
+          <table>
+            <tr>
+                <td style="width: 160px;">{CALTEXT_CAL-OPTIONS-STARTDAY}</td>
+                <td >
+                    <select class="edit_select_short" name="startday" >
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>{CALTEXT_CAL-OPTIONS-FORMAT}</td>
+                <td>
+                    <select class="edit_select_short" name="useformat" >
+                        <!-- BEGIN date_format_list_block -->
+                            <option value="{VALUE}"{SELECTED}>{NAME}</option>
+                        <!-- END date_format_list_block -->
+                    </select>
+              </td>
+            </tr>
+            <tr>
+
+
+
+<!-- END main_block -->

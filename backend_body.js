@@ -4,17 +4,20 @@
     if (typeof MODULE_URL != 'undefined') {
 
       // Variables are set in functions.php from line 1292-ish
-      // Include datepicker files:
-      $.insert(MODULE_URL + '/js/date.js');
-      $.insert(MODULE_URL + '/js/jquery.datePicker.js');
+      // Include datepicker files:   datePicker
+      $.insert(MODULE_URL + '/themes/default/js/TimePicki/css/timepicki.css');
+      $.insert(MODULE_URL + '/themes/default/js/DatePicker/styles/datePicker.css');
+      $.insert(MODULE_URL + '/themes/default/js/TimePicki/js/timepicki.js');
+      $.insert(MODULE_URL + '/themes/default/js/DatePicker/scripts/date.js');
+      $.insert(MODULE_URL + '/themes/default/js/DatePicker/scripts/jquery.datePicker.js');
 
       // This is only needed for ie 6 and smaller
       if ($.browser.msie && $.browser.version.substr(0,1)<7) {
-        $.insert(MODULE_URL + '/js/jquery.bgiframe.js');
+        $.insert(MODULE_URL + '/themes/default/js/DatePicker/scripts/jquery.bgiframe.js');
       }
       // Insert language file if it is not none!
       if (datelang !== "none") {
-        $.insert(MODULE_URL + '/js/lang/'+ datelang);
+        $.insert(MODULE_URL + '/themes/default/js/DatePicker/lang/'+ datelang);
       }
       // firstday 0=sunday, 1=monday
       // Fomat = datefomat yyyy/mm/dd or dd mm yyy or ...
@@ -22,42 +25,78 @@
       Date.format         = format;
 
       // set up the calendars and make them work together, date from first will be minimum date for second
-      $(function()
-      {
+    $(function(){
         $('.date-pick').datePicker({
-            clickInput:true,
+            clickInput:false,
             autoFocusNextInput: true,
             startDate:datefrom
         });
 
         $('#date1').bind(
-            // Update date2 when date changes, set starting date to date1
             'dpClosed',
             function(e, selectedDates)
             {
                 var d = selectedDates[0];
                 if (d) {
                     d = new Date(d);
-                    $('#date2').dpSetStartDate(d.addDays(0).asString());
+                    $('#date2').dpSetStartDate(d.addDays(1).asString());
                 }
             }
-        ).datestart;   // datestart!!
-console.info(datestart);
-        $('#date2').datePicker().dpSetStartDate(datestart).dateend;   // dateend!!
-      });
+        );
+
+        $('#date2').bind(
+            'dpClosed',
+            function(e, selectedDates)
+            {
+                var d = selectedDates[0];
+                if (d) {
+                    d = new Date(d);
+                    $('#date1').dpSetEndDate(d.addDays(-1).asString());
+                }
+            }
+        );
+
+        begin = document.getElementById('start_time');
+        t1 = (begin ? begin.value : '');
+        time = t1.split(":");
+        $('#start_time').timepicki({
+            start_time:time,
+            show_meridian:false,
+            min_hour_value:0,
+            max_hour_value:23,
+            step_size_minutes:1,
+            overflow_minutes:true,
+            increase_direction:'up',
+            disable_keyboard_mobile: false
+        });
+        end = document.getElementById('end_time');
+        t2 = (end ? end.value : '');
+        time = t2.split(":");
+        $('#end_time').timepicki({
+            start_time:time,
+            show_meridian:false,
+            min_hour_value:0,
+            max_hour_value:23,
+            step_size_minutes:1,
+            overflow_minutes:true,
+            increase_direction:'up',
+            disable_keyboard_mobile: false
+        });
+    });
 
     // End of MODULE_URL test
     };
 
 // load the ColorPicker for editing categories only when needed
 if (location.href.search(/modify_settings/) > -1)
-  $.insert(MODULE_URL + 'js/mColorPicker/javascripts/mColorPicker.js');
+  $.insert('js/mColorPicker/javascripts/mColorPicker.js');
 
 $(document).ready(function () {
     // functions for colors in actionlist
   $('.edit_field_short').bind('colorpicked', function (e,color) {
     $('input[name="action_background"]').attr('value', color);
   });
+
   $('.rec_select input').bind("change myinit", function(event){
       if ($(this).attr('id') == 'rec_exceptions'){
           if (event.type != "myinit")
@@ -91,15 +130,19 @@ $(document).ready(function () {
     $('.rec_rep_select input').bind("click change",function(){
         $('.rec_rep_select input').not($(this)).attr('value',"");
         $('.rec_rep_select input').not($(this)).prop("checked", false);
+/*
         $('#date2').attr('value',"");
         $('#end_time').attr('value',"");
+*/
     });
     $('#date2').bind("click change",function(){
         $('.rec_rep_select input').attr('value',"");
         $('.rec_rep_select input').prop("checked", false);
+/*
         if ($('#end_time').val() == '') {
-                $('#end_time').attr('value',"00:00");
+            $('#end_time').attr('value',"00:00");
         }
+*/
     });
     $('.rec_day input').bind("click change",function(){
         if (isNaN($(this).attr('value'))) $(this).attr('value',"");
@@ -183,11 +226,14 @@ $(document).ready(function () {
                 $('.edit_button').click(function(){
                     $('#date1, #date2').prop("disabled", false);
                 });
+
                 $('.rec_select input').prop("checked", false);
                 $('.rec_select input').prop("disabled", true);
                 $('.procal_hidden').hide();
+                $('#delete').hide();
                 $('#date1, #date2').attr('value',$('#rec_day_called').attr('value'));
                 $('#date1, #date2').prop("disabled", true);
+
             };
         };
     };

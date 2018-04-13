@@ -18,7 +18,6 @@
   along with Website Baker; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
- */
 if (LANGUAGE_LOADED) {
     if (file_exists(WB_PATH . "/modules/" . basename(__dir__) . "/languages/" . LANGUAGE . ".php")) {
         require_once (WB_PATH . "/modules/" . basename(__dir__) . "/languages/" . LANGUAGE . ".php");
@@ -26,6 +25,7 @@ if (LANGUAGE_LOADED) {
         require_once (WB_PATH . "/modules/" . basename(__dir__) . "/languages/EN.php");
     }
 }
+ */
 /*
   if(!isset($wysiwyg_editor_loaded)) {
     $wysiwyg_editor_loaded=true;
@@ -40,24 +40,54 @@ if (LANGUAGE_LOADED) {
   }
 
 */
+if (!defined('SYSTEM_RUN')) {header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found'); echo '404 File not found'; flush(); exit;}
+
+if (is_readable(__DIR__.'/languages/EN.php')) {require(__DIR__.'/languages/EN.php');}
+if (is_readable(__DIR__.'/languages/'.DEFAULT_LANGUAGE.'.php')) {require(__DIR__.'/languages/'.DEFAULT_LANGUAGE.'.php');}
+if (is_readable(__DIR__.'/languages/'.LANGUAGE.'.php')) {require(__DIR__.'/languages/'.LANGUAGE.'.php');}
+
+//global $action_types, $public_stat, $weekdays, $monthnames,$year, $month, $day;
+
+    function isProcalcFuncLoaded(){;}
 /* returns count of days in given month */
-function DaysCount($month, $year) {
-    return cal_days_in_month(CAL_GREGORIAN, $month, $year);
-}
+    function DaysCount($month, $year) {
+        return cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    }
+
+    function ReplaceAbsoluteMediaUrl($sContent)
+    {
+      if (ini_get( 'magic_quotes_gpc') == true) {
+        $sContent = $this->strip_slashes( $sContent);
+      }
+      if (is_string( $sContent)) {
+        $sRelUrl = preg_replace('/^https?:\/\/[^\/]+(.*)/is', '\1', WB_URL);
+        $sDocumentRootUrl = str_replace($sRelUrl, '', WB_URL);
+        $sMediaUrl = WB_URL.MEDIA_DIRECTORY.'/';
+        $aSearchfor = [
+            '@(<[^>]*=\s*")('.preg_quote($sMediaUrl).
+            ')([^">]*".*>)@siU', '@(<[^>]*=\s*")('.preg_quote( WB_URL.'/').')([^">]*".*>)@siU',
+            '/(<[^>]*?=\s*\")(\/+)([^\"]*?\"[^>]*?)/is',
+            '/(<[^>]*=\s*")('.preg_quote($sMediaUrl, '/').')([^">]*".*>)/siU',
+#            '/^https?:\/\/('.preg_quote($sMediaUrl, '/').')(.*)/siU'
+            ];
+        $aReplacements = [ '$1{SYSVAR:AppUrl.MediaDir}$3', '$1{SYSVAR:AppUrl}$3','\1'.$sDocumentRootUrl.'/\3','$1{SYSVAR:MEDIA_REL}$3'];
+        $sContent = preg_replace( $aSearchfor, $aReplacements, $sContent);
+      }
+      return $sContent;
+    }
 
 /* returns number (in week) of first day in month,  this was made for countries, where week starts on Monday  */
-
-function FirstDay($month, $year) {
-    $english_order = date("w", mktime(0, 0, 0, $month, 1, $year));
-    //echo("FirstDay: " . $english_order);
-    return ($english_order == 0) ? 7 : $english_order;
-}
+    function FirstDay($month, $year) {
+        $english_order = date("w", mktime(0, 0, 0, $month, 1, $year));
+        //echo("FirstDay: " . $english_order);
+        return ($english_order == 0) ? 7 : $english_order;
+    }
 
 /* returns number of columns for calendar table */
 
-function ColsCount($month, $year) {
-    return date("W", mktime(0, 0, 0, $month, DaysCount($month, $year) - 7, $year)) - date("W", mktime(0, 0, 0, $month, 1 + 7, $year)) + 4;
-}
+    function ColsCount($month, $year) {
+        return date("W", mktime(0, 0, 0, $month, DaysCount($month, $year) - 7, $year)) - date("W", mktime(0, 0, 0, $month, 1 + 7, $year)) + 4;
+    }
 
 /* This function returns value of table-cell identified by row and column number.  */
 
@@ -110,13 +140,15 @@ function GetCalRowCount($dayscount, // how many days have this month
 
 //#######################################################################
 function ShowMiniCalendar($LinkName, $PageIdCal, $SectionIdCal) {
-    global $page_id, $monthnames, $weekdays, $section_id;
+    global $page_id, $monthnames, $weekdays, $section_id,$day;
     $timestamp = time();
     $datum = date("m.Y", $timestamp);
     $month = substr($datum, 0, 2);
     $year = substr($datum, 3, 4);
+
     $date_start = "$year-$month-1"; // range for all month
     $date_end = "$year-$month-" . DaysCount($month, $year);
+
     $actions = fillActionArray($date_start, $date_end, $section_id);
     ($month > 1) ? ($prevmonth = $month - 1) : ($prevmonth = 12);
     ($month < 12) ? ($nextmonth = $month + 1) : ($nextmonth = 1);
@@ -128,7 +160,7 @@ function ShowMiniCalendar($LinkName, $PageIdCal, $SectionIdCal) {
     ?>
     <table border="1" class="calendarmod_mini">
         <tr>
-            <td colspan="7" width="<?php echo ($colcount - 2) * 30;?>" class="calendarmod_header_mini">
+            <td colspan="7" style="width:<?php echo ($colcount - 2) * 30;?>px;" class="calendarmod_header_mini">
             <a href="<?php echo $LinkName?>?page_id=<?php echo $PageIdCal;?>&amp;month=<?php echo $month;?>&amp;year=<?php echo $year;?>"><?php echo $monthnames[intval($month)]."&nbsp;".$year;?></a>
         </td>
         </tr>
@@ -138,7 +170,7 @@ function ShowMiniCalendar($LinkName, $PageIdCal, $SectionIdCal) {
             echo "<tr>";
             // Spalte
             for ($col = 1; $col <= 7; $col++) {
-                //echo "<td width='30' align='center'>";
+                //echo "<td style='width: 30px;' style='text-align: center;'>";
                 $day = Cell($row, $col, $firstday, $dayscount, $SectionIdCal);
                 if (is_numeric($day)) {
                     $FlagDayWr = 1;
@@ -159,7 +191,7 @@ function ShowMiniCalendar($LinkName, $PageIdCal, $SectionIdCal) {
                     }
                     // Was Day already written?
                     if ($FlagDayWr == 1) {
-                        echo "<td width='30' align='center'>";
+                        echo "<td style='width: '30px; tex-align: center;'>";
                         echo $day;
                     }
                 } else {
@@ -182,54 +214,76 @@ function ShowMiniCalendar($LinkName, $PageIdCal, $SectionIdCal) {
 }
 
 //#######################################################################
-function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
-    global $page_id, $monthnames, $weekdays;
-    global $database, $admin, $wb;
-    ($month > 1) ? ($prevmonth = $month - 1) : ($prevmonth = 12);
-    ($month < 12) ? ($nextmonth = $month + 1) : ($nextmonth = 1);
-    ($month == 1) ? ($prevyear = $year - 1) : ($prevyear = $year);
-    ($month == 12) ? ($nextyear = $year + 1) : ($nextyear = $year);
-    $dayscount = DaysCount($month, $year);
-    $firstday = FirstDay($month, $year);
+//function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
+function ShowCalendar(array $localVariables) {
+//    global $page_id, $monthnames, $weekdays,$database, $admin, $wb;
+
+if (isset($localVariables) && is_array($localVariables)){extract($localVariables);}
+
+    $prevmonth  = (($month >   1) ? ($month - 1) : 12);
+    $nextmonth  = (($month <  12) ? ($month + 1) : 1);
+    $prevyear   = (($month ==  1) ? ($year - 1) : $year);
+    $nextyear   = (($month == 12) ? ($year + 1) : $year);
+
+    $dayscount  = DaysCount($month, $year);
+    $firstday   = FirstDay($month, $year);
     $addBracket = function ()
     {
         $aList = func_get_args();
     //    return preg_replace('/^(.*)$/', '/\[$1\]/s', $aList);
         return preg_replace('/^(.*)$/', '[$1]', $aList);
     };
-
     /*
       //$previmg   = WB_URL."/modules/".basename(__DIR__)."/prev.png";
       //$nextimg   = WB_URL."/modules/".basename(__DIR__)."/next.png";
      */
+    $sAddonPath = str_replace(DIRECTORY_SEPARATOR,'/', __DIR__);
+
+    $PagesModifyUrl = (@$IsBackend ? ADMIN_URL.'/pages/modify.php' : $wb->link);
+    $output = '';
+    $output .= '<div class="w3-row">'.PHP_EOL;
+    if (isset($IsBackend)&&$IsBackend){
+        if (is_readable($sAddonPath.'/info.php')){require $sAddonPath.'/info.php';}
+        $output .= '<div class="w3-threequarter" style="margin-bottom: 0.925em;text-align: left;">'.PHP_EOL;
+        $output .= '<h2 style="margin-left:0.825em;">'.$module_name.'</h2>'.PHP_EOL;
+        if (is_readable($sAddonPath.'/languages/support-'.LANGUAGE.'.php')){
+            $output  .= '<div class="w3-container" style="overflow:auto;height: 11.725em;">'.PHP_EOL;
+            $output  .= '<h2>'.$CALTEXT['SUPPORT_INFO'].'</h2>'.PHP_EOL;
+            $sContent = file_get_contents($sAddonPath.'/languages/support-'.LANGUAGE.'.php');
+            $aSearches[] = '{SYSVAR:AddonUrl}';
+            $aReplacements[] = WB_URL.'/modules/'.basename(__DIR__);
+            $output  .= str_replace($aSearches, $aReplacements, $sContent);
+            $output  .= '</div>'.PHP_EOL;
+        }
+        $output .= '</div>'.PHP_EOL;
+    }
     // change Luisehahne WB_URL.'/modules/'.basename(__DIR__).'/view.php'
-    $PagesModifyUrl = (@$IsBackend ? ADMIN_URL.'/pages/modify.php' : $admin->link);
-    $output = '<div class="show_calendar">';
-    $output .= '<table class="calendarmod" >';
-    $output .= '  <tr class="calendarmod-header">';
-    $output .= '    <td><span class="arrows"><a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $month .'&amp;year=' . ($year - 1) . '" title="' . ($year - 1) . '">&laquo;</a></span>';
+    $output .= '<div class="show_calendar">'.PHP_EOL;
+    $output .= '<table class="calendarmod" >'.PHP_EOL;
+    $output .= '  <tr class="calendarmod-header">'.PHP_EOL;
+    $output .= '    <td>'.PHP_EOL.'<span class="arrows">'.PHP_EOL.'<a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $month .'&amp;year=' . ($year - 1) . '" title="' . ($year - 1) . '">&laquo;</a>'.PHP_EOL.'</span>';
     $output .= '    <span><a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $prevmonth . '&amp;year=' .$prevyear . '" title="' . $monthnames[$prevmonth] . '">&lsaquo;</a></span></td>';
-    $output .= '    <td colspan="5" width="150">' . $monthnames[$month] . '&nbsp;' . $year . '</td>';
-    $output .= '    <td><span class="arrows"><a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $nextmonth .'&amp;year=' . $nextyear . '" title="' . $monthnames[$nextmonth] . '">&rsaquo;</a></span>';
-    $output .= '    <span><a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $month . '&amp;year=' . ($year+1) . '" title="' . ($year + 1) . '">&raquo;</a></span></td>';
-    $output .= ' </tr>';
+    $output .= '    <td colspan="5" style="width:150px;">' . $monthnames[$month] . '&nbsp;' . $year . '</td>';
+    $output .= '    <td>'.PHP_EOL.'<span class="arrows"><a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $nextmonth .'&amp;year=' . $nextyear . '" title="' . $monthnames[$nextmonth] . '">&rsaquo;</a></span>';
+    $output .= '    <span>'.PHP_EOL.'<a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;month=' . $month . '&amp;year=' . ($year+1) . '" title="' . ($year + 1) . '">&raquo;</a></span></td>';
+    $output .= ' </tr>'.PHP_EOL.'';
     // ShowTermineDebug($month, $year, $actions);
     if (glob(WB_PATH . "/modules/" . basename(__dir__) . "/images/*.png") !== false)
         foreach (glob(WB_PATH . "/modules/" . basename(__dir__) . "/images/*.png") as $filename) {
             unlink($filename);
         }
-    ;
     $this_day = (intval($month) == date('n') && intval($year) == date('Y')) ? date('j') : 0;
     $rowcount = GetCalRowCount($dayscount, $firstday, $section_id);
     for ($row = 1; $row <= $rowcount; $row++) {
-        $output .= '<tr>';
+        $output .= '<tr>'.PHP_EOL;
         for ($col = 1; $col <= 7; $col++) {
             $day = Cell($row, $col, $firstday, $dayscount, $section_id);
             $procal_today = (is_numeric($day) && $day == $this_day) ? " procal_today" : "";
             if (is_numeric($day)) {
-                $colors = array();
+                $colors = [];
                 $FlagDayWr = 1;
                 for ($i = 0; $i < sizeof($actions); $i++) {
+
                     $tmp = $actions[$i];
                     $dayend = substr($tmp['date_end'], -2);
                     $monthend = substr($tmp['date_end'], 5, 2);
@@ -237,11 +291,13 @@ function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
                     $monthstart = substr($tmp['date_start'], 5, 2);
                     $dayformat = $tmp['act_dayformat'];
                     $bgName = $day . $month . $year;
+
                     if (MarkDayOk($day, $month, $year, $actions, $i)) {
                         if ($actions[$i]['act_format'] != "" & $dayformat)
                             $colors[] = $actions[$i]['act_format'];
                         $FlagDayWr = 0;
-                        /* $yearstart  = substr($tmp['date_start'],0,4);
+/*
+                        $yearstart  = substr($tmp['date_start'],0,4);
                           $link_pre = "".($tmp['name']);
                           if(IstStartTerminVergangeheit("$year-$month-$day","$yearstart-$monthstart-$daystart") == 1 ) {
                           $link = "?$link_pre&amp;month=$monthstart&amp;year=$yearstart&amp;day=$daystart&amp;show=-1";
@@ -252,26 +308,28 @@ function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
                           $link .= "&amp;page_id=$pageid";
                           }
                           $link .= "&amp;id=".$tmp['id']."&amp;section_id=$section_id&amp;detail=1";
-                          $link = str_replace("\"","'",$link); */
+                          $link = str_replace("\"","'",$link);
+*/
                     }
                 }
                 // Was Day already written?
                 if ($FlagDayWr) {
                     // change Luisehahne WB_URL.'/modules/'.basename(__DIR__).'/view.php'
-                    $PagesModifyUrl = (@$IsBackend ? ADMIN_URL.'/pages/modify.php' : $admin->link);
-                    $output .= "<td width='30' align='center' class='calendar_emptyday" . $procal_today . "'>";
-                    if ($IsBackend == false)
+                    $PagesModifyUrl = (@$IsBackend ? ADMIN_URL.'/pages/modify.php' : $wb->link);
+                    $output .= "<td style='width: 30px;'  class='calendar_emptyday" . $procal_today . "'>".PHP_EOL;
+                    if ($IsBackend == false){
                         $output .= $day;
-                    else
+                    }else{
                         $output .= '<a href="' . $PagesModifyUrl.'?page_id=' . $page_id . '&amp;day=' . $day . '&amp;month=' . $month . '&amp;year=' . $year . '&amp;edit=new">' . $day . '</a>';
+                    }
                 } else { //day must be marked
                     $style = "";
                     if (count($colors)) {
                         createBackground($colors, $bgName);
                         $style = 'style="background-image: url(' . WB_URL . '/modules/' . basename(__DIR__) . '/images/' . $bgName . '.png); background-position: bottom;background-repeat:repeat-x"';
                     }
-                    $output .= "<td class='calendar_markday" . $procal_today . "' id='acttype" . $tmp["acttype"] . "' " . $style . ">";
-                    $output .= '<a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;day=' . $day . '&amp;month=' . $month . '&amp;year=' . $year . '&amp;dayview=1">' . $day . '</a>';
+                    $output .= "<td class='calendar_markday" . $procal_today . "' id='acttype" . $tmp["acttype"].'_'.$col . "' " . $style . ">".PHP_EOL;
+                    $output .= '<a href="' . $PagesModifyUrl . '?page_id=' . $page_id . '&amp;day=' . $day . '&amp;month=' . $month . '&amp;year=' . $year . '&amp;dayview=1">' . $day . '</a>'.PHP_EOL;
                     //$output .="<a href='".$link."'>$day</a>";
                 }
             } else {
@@ -283,20 +341,23 @@ function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
                 $output .= "<b>$day</b>";
             }
             // end of column
-            $output .= "</td>";
+            $output .= "</td>".PHP_EOL;
         }
         // end of row
         $output .= "</tr>\n";
     }
-    $output .= '</table></div>';
+    $output .= '</table>'.PHP_EOL.'</div>'.PHP_EOL;
+    $output .= '</div>'.PHP_EOL;
+
     if (!$IsBackend) {
         // Fetch needed settings from db
-        $sql = "SELECT * FROM " . TABLE_PREFIX . "mod_procalendar_settings WHERE section_id=$section_id ";
-        $db = $database->query($sql);
-        if ($db->numRows() > 0) {
-            while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {
+        $sql = "SELECT * FROM `" . TABLE_PREFIX . "mod_procalendar_settings` WHERE `section_id`=$section_id ";
+        $oRes = $database->query($sql);
+        if ($oRes->numRows() > 0) {
+#            while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {}
+                $rec = $oRes->fetchRow(MYSQLI_ASSOC);
                 $header = $rec["header"];
-            }
+
         }
         $aPlaceHolders = $addBracket(
             'NEW_ENTRY',
@@ -305,16 +366,13 @@ function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
         $display_new_entry = '<br />';
         if ($admin->is_authenticated())
         {
-        $display_new_entry = '<a href="'.ADMIN_URL.'/pages/modify.php/pages/modify.php?page_id='.$page_id.'&edit=new">neuer Eintrag</a>';
+        $display_new_entry = '<a target="_blank" rel="noopener nofollow" href="'.ADMIN_URL.'/pages/modify.php/pages/modify.php?page_id='.$page_id.'&edit=new">neuer Eintrag</a>';
         }
         $aReplacements = array(
             $display_new_entry,
             $output
         );
-
         $output2 = str_replace($aPlaceHolders, $aReplacements, $header);
-        $wb->preprocess($output2);
-
         print $output2;
     } else {
         echo $output;
@@ -322,186 +380,271 @@ function ShowCalendar($month, $year, $actions, $section_id, $IsBackend) {
 }
 
 //########################################################################
+function ShowActionList(array $localVariables) {
+/*
 function ShowActionList($day, $month, $year, $actions, $section_id) {
     global $page_id, $monthnames, $action_types, $IsBackend;
     global $CALTEXT;
     global $database, $admin, $wb;
-    ($month > 1) ? ($prevmonth = $month - 1) : ($prevmonth = 12);
-    ($month < 12) ? ($nextmonth = $month + 1) : ($nextmonth = 1);
-    ($month == 1) ? ($prevyear = $year - 1) : ($prevyear = $year);
-    ($month == 12) ? ($nextyear = $year + 1) : ($nextyear = $year);
-    $colcount = ColsCount($month, $year);
+    global $aInputRequest;
+
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( $monthnames ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+
+    $localVariables = compact(array_keys(get_defined_vars()));
+*/
+    if (isset($localVariables) && is_array($localVariables)){extract($localVariables);}
+
+    $aErrorMsg = [];
+    $prevmonth = (($month > 1) ? ($month - 1) : 12);
+    $nextmonth = (($month < 12) ? ($month + 1) : 1);
+    $prevyear  = (($month == 1) ? ($year - 1) : $year);
+    $nextyear  = (($month == 12) ? ($year + 1) : $year);
+    $colcount  = ColsCount($month, $year);
     $dayscount = DaysCount($month, $year);
-    $firstday = FirstDay($month, $year);
+    $firstday  = FirstDay($month, $year);
     //$previmg   = WB_URL."/modules/".basename(__DIR__)."/prev.gif";
     //$nextimg   = WB_URL."/modules/".basename(__DIR__)."/next.gif";
-    $IsMonthOverview = (strlen($day) > 0) ? 0 : 1;
-    $today = date("Y-m-d");
+    $today = date("Y-m-d H:m:s");
     // change Luisehahne WB_URL.'/modules/'.basename(__DIR__).'/view.php'
-    $PagesModifyUrl = (@$IsBackend ? ADMIN_URL . '/pages/modify.php' : $admin->link);
+    $PagesModifyUrl = (@$IsBackend ? ADMIN_URL . '/pages/modify.php' : $wb->link);
+    $BackToMonthLink = '';
     $BackToMonthLink = '<a class="go_back" href="'.$PagesModifyUrl.'?page_id='.$page_id.'&amp;month='.$month.'&amp;year=' . $year . '">' . $CALTEXT['OF_MONATS'].'-'.$CALTEXT['DATES'].'</a>';
+
+    $IsMonthOverview = ($month != date("n"));
+    $IsMonthOverview =  ($dayview && ($day != date("d")) ? $IsMonthOverview : !$dayview);
+
+    $complementary = (function ($color){
+        $leadingHash = false;
+        //clear whitespaces just to be shure
+        $color = trim($color);
+        //cut leading #
+        if (strpos($color, "#") !== false) {
+            $color = substr($color, 1);
+            $leadingHash = true;
+        }
+        //check if valid color string
+        if  (preg_match('/^[A-Fa-f0-9]+$/', $color)== 'false') {
+            return $leadingHash ? '#' . $color : $color;
+        }
+        $r1 = dechex((15 - (hexdec($color[0]))));
+        $r2 = dechex((15 - (hexdec($color[1]))));
+        $g1 = dechex((15 - (hexdec($color[2]))));
+        $g2 = dechex((15 - (hexdec($color[3]))));
+        $b1 = dechex((15 - (hexdec($color[4]))));
+        $b2 = dechex((15 - (hexdec($color[5]))));
+        $complementary = $r1 . $r2 . $g1 . $g2 . $b1 . $b2;
+        return $leadingHash ? '#' . $complementary : $complementary;
+    });
+
     // no backlink in actuell month, because only events today will be shown
-    $BackToMonthLink = ((($IsMonthOverview != 1) && ($month != date('n'))) ? $BackToMonthLink : '');
-    $HeaderText = '<td valign="top" align="left" class="arrow_left"><a href="' . $PagesModifyUrl . '?page_id=' . $page_id .
+#    $BackToMonthLink = ((($IsMonthOverview != 1) && ($month != date('n'))) ? $BackToMonthLink : '');
+    $HeaderText = '<td class="arrow_left">'.PHP_EOL.'<a href="' . $PagesModifyUrl . '?page_id=' . $page_id .
             '&amp;month=' . $prevmonth . '&amp;year=' . $prevyear . '" title="' . $monthnames[$prevmonth] . '">&laquo;&nbsp;' . $monthnames[$prevmonth] .
-            '</a></td>';
-    $HeaderText .= '<td valign="top" width="100%" align="center"><h2>'.$monthnames[$month].'&nbsp;'.$year.
-            '</h2></td>';
-    $HeaderText .= '<td valign="top" align="right" class="arrow_right"><a href="' . $PagesModifyUrl . '?page_id=' . $page_id .
+            '</a>'.PHP_EOL.'</td>';
+    $HeaderText .= '<td style="width:100%;">'.PHP_EOL.'<h2>'.$monthnames[$month].'&nbsp;'.$year.
+            '</h2>'.PHP_EOL.'</td>';
+    $HeaderText .= '<td class="arrow_right">'.PHP_EOL.'<a href="' . $PagesModifyUrl . '?page_id=' . $page_id .
             '&amp;month=' . $nextmonth . '&amp;year=' . $nextyear . '" title="' . $monthnames[$nextmonth] . '">' . $monthnames[$nextmonth] .
-            '&nbsp;&raquo;</a></td>';
-    if (!isset($IsBackend)) {
+            '&nbsp;&raquo;</a>'.PHP_EOL.'</td>';
+
+    if (isset($IsBackend) && !$IsBackend) {
         // Fetch header settings from db
-        $sql = "SELECT * FROM " . TABLE_PREFIX . "mod_procalendar_settings WHERE section_id=$section_id ";
-        $db = $database->query($sql);
-        if ($db->numRows() > 0) {
-            while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {
-                $header = $rec["header"];
-                $usetime = $rec["usetime"];
+        $sql = "SELECT * FROM `" . TABLE_PREFIX . "mod_procalendar_settings` WHERE `section_id`=$section_id ";
+        if ($oRes = $database->query($sql)){
+            if ($oRes->numRows() > 0) {
+#                while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {}
+                $rec = $oRes->fetchRow(MYSQLI_ASSOC);
+                    $header  = $rec["header"];
+                    $usetime = $rec["usetime"];
+
+                if (is_int(strpos($header, '[CALENDAR]'))){
+                    $HeaderText = '';
+                }
             }
-            if (is_int(strpos($header, '[CALENDAR]')))
-                $HeaderText = '';
+        } else {
+          $aErrorMsg[] = sprintf('%s',$database->get_error());
         }
     }
-    $jscal_use_time = $usetime; // whether to use a clock, too
-    require_once(WB_PATH."/include/jscalendar/wb-setup.php");
+/*
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.$IsBackend.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( htmlspecialchars($header) ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+//    $jscal_use_time = $usetime; // whether to use a clock, too
+//    require_once(WB_PATH."/include/jscalendar/wb-setup.php");
+*/
     if ($HeaderText <> '') {
-
 ?>
         <div class="actionlist_headernav">
-            <table width="100%" height="10">
+            <table class="action_table w3-table">
                 <tr>
         <?php echo $HeaderText;?>
                 </tr>
             </table>
         </div>
-    <?php }?>
+    <?php }
+      $display = (sizeof($actions) ? 'block' : 'none');
+    ?>
 
-    <div class="actionlist">
-        <table class="actionlist_table">
+    <div class="actionlist" style="display:<?php echo $display;?>;">
+        <table class="w3-table scrollable actionlist_table">
+          <thead>
             <tr class="actionlist_header">
-                <td style="vertical-align: top;" class="actionlist_date"><?php echo $CALTEXT['DATE'];?></td>
+                <th style="vertical-align: top;" class="actionlist_date"><?php echo $CALTEXT['DATE'];?></th>
 <?php
                 if ($usetime) {
-                    echo '<td valign="top" class="actionlist_time">' . $CALTEXT['FROM'] . '</td>';
-                    echo '<td valign="top" class="actionlist_time">' . $CALTEXT['DEADLINE'] . '</td>';
+                    echo '<th class="actionlist_time">' . $CALTEXT['FROM'] . '</th>';
+                    echo '<th class="actionlist_time">' . $CALTEXT['DEADLINE'] . '</th>';
                 }
  ?>
-                <td valign="top" class="actionlist_name"><?php echo $CALTEXT['NAME'];
- ?></td>
-                <td valign="top" class="actionlist_actiontype"><?php echo $CALTEXT['CATEGORY'];
- ?></td>
+                <th class="actionlist_name"><?php echo $CALTEXT['NAME'];
+ ?></th>
+                <th class="actionlist_actiontype"><?php echo $CALTEXT['CATEGORY'];
+ ?></th>
             </tr>
+          </thead>
+          <tbody>
             <?php
             $firstday = 1;
             $lastday = DaysCount($month, $year);
             $FlagEntryWritten = 0;
             if (!isset($day)) {
                 $ReplaceDay = 1;
-            } else
+            } else{
                 $ReplaceDay = 0;
-            for ($i = 0; $i < sizeof($actions); $i++) {
-                $FlagEntryWritten = 1;
-                $tmp = $actions[$i];
-                $timestart = substr($tmp['time_start'], 0, 5);
-                $timeend = substr($tmp['time_end'], 0, 5);
-                $dayend = substr($tmp['date_end'], -2);
-                $monthend = substr($tmp['date_end'], 5, 2);
-                $yearend = substr($tmp['date_end'], 0, 4);
-                $daystart = substr($tmp['date_start'], 8, 2);
-                $monthstart = substr($tmp['date_start'], 5, 2);
-                $yearstart = substr($tmp['date_start'], 0, 4);
-                $fontcol = $tmp['act_format'] == '' ? '' : (hexdec(substr($tmp['act_format'], 0, 3)) + hexdec(substr($tmp['act_format'], 3, 2)) + hexdec(substr($tmp['act_format'], 5, 2)) < 400) ? '; color:#FFFFFF' : '';
-                $style = $tmp['act_format'] == '' ? '' : 'style="background:' . $tmp['act_format'] . $fontcol . ';"';
-                //if (!isset($_GET['dayview']) && intval($daystart) !== intval(date('j'))) { continue; }
-                if ($ReplaceDay == 1) {
-                    $day = $daystart;
-                }
-                if (MarkDayOk($day, $month, $year, $actions, $i) || $IsMonthOverview) {
-                    $link_pre = "" . ($tmp['name']);
-                    if (IstStartTerminVergangeheit("$year-$month-$day", "$yearstart-$monthstart-$daystart") == 1) {
-                        $link = "?$link_pre&amp;month=$monthstart&amp;year=$yearstart&amp;day=$daystart&amp;show=-1";
-                    } else {
-                        $link = "?$link_pre&amp;month=$month&amp;year=$year&amp;day=$daystart&amp;show=$i";
+            }
+
+            if (sizeof($actions)) {; }
+                foreach ($actions as $i => $aValue){
+                    $sStartTime = $aValue['date_start'].' '.$aValue['time_start'];
+                    $sEndTime   = $aValue['date_end'].' '.$aValue['time_end'];
+/*
+                if (!$listIt){continue;}
+                    $listIt = (strtotime($aValue['date_start']) >= strtotime('now') ? 1 : 0);
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( $actions ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( $sStartTime.'<br />'.$today ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+*/
+//            }
+//                for ($i = 0; $i < sizeof($actions); $i++) {
+                    $FlagEntryWritten = 1;
+                    $tmp = $aValue;
+                    extract($tmp);
+                    $timestart = substr($tmp['time_start'], 0, 5);
+                    $timeend = substr($tmp['time_end'], 0, 5);
+                    $dayend = substr($date_end, -2);
+                    $monthend = substr($tmp['date_end'], 5, 2);
+                    $yearend = substr($tmp['date_end'], 0, 4);
+                    $daystart = substr($tmp['date_start'], 8, 2);
+                    $monthstart = substr($tmp['date_start'], 5, 2);
+                    $yearstart = substr($tmp['date_start'], 0, 4);
+
+                    $fontcol = $tmp['act_format'] == '' ? '' : (hexdec(substr($tmp['act_format'], 0, 3)) + hexdec(substr($tmp['act_format'], 3, 2)) + hexdec(substr($tmp['act_format'], 5, 2)) < 400) ? '; color:#FFFFFF' : '';
+                    $style = $tmp['act_format'] == '' ? '' : 'style="background:' . $tmp['act_format'] . $fontcol . ';"';
+                    //if (!isset($_GET['dayview']) && intval($daystart) !== intval(date('j'))) { continue; }
+                    if ($ReplaceDay == 1) {
+                        $day = $daystart;
                     }
-                    if (isset($pageid)) {
-                        $link .= "&amp;page_id=$pageid";
-                    }
-                    $link .= "&amp;id=" . $tmp['id'] . "&amp;section_id=$section_id&amp;detail=1";
-?>
-                    <tr id=<?php echo '"acttype' . $tmp["acttype"] . '" ' . $style; ?>>
-                        <td class="actionlist_date"><?php
-                    echo $tmp['fdate_start'];
-                    if ($tmp['date_end']) {
-                        if ($tmp['date_end'] != $tmp['date_start']) { //only show end date if event has multiple days
-                            echo "&nbsp;/&nbsp;";
-                            echo $tmp['fdate_end'];
+                    $listIt = ((strtotime($sStartTime) >= strtotime('now')) && !isset($_GET['[dayview]']) ? 1 : 0);
+                    if (MarkDayOk($day, $month, $year, $actions, $i) || ($IsMonthOverview) ) {  //  && $listIt
+                        $link_pre = "" . ($tmp['name']);
+                        if (IstStartTerminVergangeheit("$year-$month-$day", "$yearstart-$monthstart-$daystart") == 1) {
+                            $link = "?$link_pre&amp;month=$monthstart&amp;year=$yearstart&amp;day=$daystart&amp;show=-1";
+                        } else {
+                            $link = "?$link_pre&amp;month=$month&amp;year=$year&amp;day=$daystart&amp;show=$i";
                         }
-                    }
-?>
-                        </td>
-<?php
-                            if ($usetime) {
-                                echo '<td valign="top" class="actionlist_time">' . $timestart . '</td>';
-                                echo '<td valign="top" class="actionlist_time">' . $timeend . '</td>';
-                            }
-?>
-                        <td class="actionlist_name"><?php
-                        $link = str_replace("\"", "'", $link);
-                        echo "<a href=\"$link\" >" . $tmp["name"] . "</a>";
-?>
-                        </td>
-                        <td class="actionlist_actiontype"><?php
-                            if ($tmp['acttype'] > 0) {
-                                $action_name = explode("#", $action_types[$tmp['acttype']]['name']);
-                                print_r( $action_name[0]);
-                            }
-  ?></td>
-                    </tr>
-<?php
+                        if (isset($pageid)) {
+                            $link .= "&amp;page_id=$pageid";
                         }
-                    }
+                        $link .= "&amp;id=" . $tmp['id'] . "&amp;section_id=$section_id&amp;detail=1";
+?>
+                        <tr class="list<?php echo $ReplaceDay;?>" id=<?php echo '"acttype' . $tmp["acttype"] . '" ' . $style; ?>>
+                            <td class="actionlist_date"><?php
+                                echo $tmp['fdate_start'];
+                                if ($tmp['date_end']) {
+                                    if ($tmp['date_end'] != $tmp['date_start']) { //only show end date if event has multiple days
+                                        echo "&nbsp;/&nbsp;";
+                                        echo $tmp['fdate_end'];
+                                    }
+                                }
+?>
+                            </td>
+<?php
+                                if ($usetime) {
+                                    echo '<td class="actionlist_time">' . $timestart . '</td>';
+                                    echo '<td class="actionlist_time">' . $timeend . '</td>';
+                                }
+?>
+                            <td class="actionlist_name"><?php
+                                $link = str_replace("\"", "'", $link);
+                                echo "<a href=\"$link\" >" . $tmp["name"] . "</a>";
+?>
+                            </td>
+                            <td class="actionlist_actiontype "><?php
+                                if (isset($action_types)&&sizeof($action_types)&&($tmp['acttype'] > 0)) {
+                                    $action_name = explode("#", $action_types[$tmp['acttype']]['name']);
+                                    print_r( $action_name[0]);
+                                } ?>
+                            </td>
+                        </tr>
+<?php
+                            } // MarkDayOk
+                        }  //  for $actions
+
                     if ($FlagEntryWritten == 0) {
 ?>
                 <tr>
-                    <td valign="top" class="actionlist_name" colspan="3">&nbsp;<?php echo $CALTEXT['NODATES'];
+                    <td class="actionlist_name" colspan="3">&nbsp;<?php echo $CALTEXT['NODATES'];
          ?></td>
 
                 </tr>
-    <?php }
+    <?php }?>
+          </tbody>
+          <tfoot>
+              <tr class="actionlist_header">
+<?php
+                if ($usetime) {
 ?>
-
+              <th colspan="5">
+                  <div style="margin: 0.525em auto;text-align: center;"><?php echo (!$IsMonthOverview ? $BackToMonthLink : $monthnames[$month].' '.$year);?></div>
+              </th>
+<?php
+  } else {
+?>
+              <th colspan="3">
+                  <div style="margin: 0.525em auto;text-align: center;"><?php echo (!$IsMonthOverview ? $BackToMonthLink : $monthnames[$month]);?></div>
+              </th>
+<?php
+  }
+?>
+              </tr>
+          </tfoot>
         </table>
     </div>
 <?php
-            // change Luisehahne
-            echo!$IsMonthOverview ? $BackToMonthLink : '';
             // Fetch needed settings from db
-            $sql = "SELECT * FROM " . TABLE_PREFIX . "mod_procalendar_settings WHERE section_id=$section_id ";
-            $db = $database->query($sql);
-            if ($db->numRows() > 0) {
-                while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {
-                    $footer = $rec["footer"];
-                }
+            $sql = "SELECT * FROM `" . TABLE_PREFIX . "mod_procalendar_settings` WHERE `section_id`=$section_id ";
+            $oRes = $database->query($sql);
+            if ($oRes->numRows() > 0) {
+#                while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {}
+                $rec = $oRes->fetchRow(MYSQLI_ASSOC);
+                    $footer = $admin->strip_slashes($rec["footer"]);
+
             }
-            $wb->preprocess($footer);
             print $footer;
-        }
+        }  // end ShowActionList
 
         /* this function returns array filled action-types grabbed from database */
 
         function fillActionTypes($sec_id) {
             global $database;
-            $retarray = array();
+            $retarray = [];
             $sql = 'SELECT * FROM `' . TABLE_PREFIX . 'mod_procalendar_eventgroups` ' . 'WHERE `section_id`=' . $sec_id . ' ' .
                     'ORDER by `name` ' . '';
             if ($db = $database->query($sql)) {
                 while ($record = $db->fetchRow(MYSQLI_ASSOC)) {
                     $retarray[$record['id']] = $record;
                 }
-                //while (list($key,$value) = each($retarray)) {
-                //echo "$key: $value ";
-                //}
             }
             return ($retarray);
         }
@@ -509,12 +652,13 @@ function ShowActionList($day, $month, $year, $actions, $section_id) {
         /* this function returns array filled with action-datas      */
 
         function fillActionArray($datestart, $dateend, $section_id) {
-            global $database, $admin;
-
+            global $database, $admin, $oReg;
+            // Create new frontend object
+//            if (!class_exists('admin')){ include(WB_PATH.'/framework/class.admin.php'); }
+            if (!isset($admin) || !($admin instanceof admin)) { $admin = new admin('##skip##',false); }
             $sql = 'SELECT * FROM `' . TABLE_PREFIX . 'mod_procalendar_settings` WHERE `section_id`='.$section_id.' ';
             if (!$db = $database->query($sql)){
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
-print_r( $database->get_error() ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+              echo sprintf('%s',$database->get_error());
             }
             if ($db->numRows() > 0) {
                 $rec = $db->fetchRow(MYSQLI_ASSOC);
@@ -528,7 +672,7 @@ print_r( $database->get_error() ); print '</pre>'; flush (); //  ob_flush();;sle
             } else {
                 $extrawhere = ''
                         .'AND ((`a`.`public_stat` = 0) '; // public actions
-                // if user is authenticated decide which actions to show
+// if user is authenticated decide which actions to show
                 if ($admin->is_authenticated())
                 {
                     $extrawhere  .= ''
@@ -536,36 +680,36 @@ print_r( $database->get_error() ); print '</pre>'; flush (); //  ob_flush();;sle
                        .'OR (`a`.`public_stat` IN ('.$_SESSION['GROUPS_ID'].')) '
                       .') ';
                 } else {
-                   $extrawhere .= ') ';
+                   $extrawhere .= ') '.PHP_EOL;
                 }
             }
             $sql  = ''
-                .  'SELECT '
-                .    '`a`.*, '
-                .    '`e`.`name` AS `act_name`, '
-                .    '`e`.`format` AS `act_format`, '
-                .    '`e`.`format_days` AS `act_dayformat` '
-                .  'FROM '
-                  .  '`'.TABLE_PREFIX . 'mod_procalendar_actions` AS `a` '
-                .  'LEFT JOIN '
-                 .     '`'. TABLE_PREFIX.'mod_procalendar_eventgroups` AS `e` '
-                .  'ON '
-                .    '`a`.`acttype` = `e`.`id` '
-                .  'WHERE (`a`.`section_id`='.$section_id.' )'
-                .    'AND (`a`.`date_start` <=\''.$dateend.'\')'
-               .    ' AND (`a`.`date_end`   >=\''.$datestart.'\' OR `a`.`rec_count` != 0) '
+                .  'SELECT '.PHP_EOL
+                .    '`a`.*, '.PHP_EOL
+                .    '`e`.`name` AS `act_name`, '.PHP_EOL
+                .    '`e`.`format` AS `act_format`, '.PHP_EOL
+                .    '`e`.`format_days` AS `act_dayformat` '.PHP_EOL
+                .  'FROM '.PHP_EOL
+                  .  '`'.TABLE_PREFIX . 'mod_procalendar_actions` AS `a` '.PHP_EOL
+                .  'LEFT JOIN '.PHP_EOL
+                 .     '`'. TABLE_PREFIX.'mod_procalendar_eventgroups` AS `e` '.PHP_EOL
+                .  'ON '.PHP_EOL
+                .    '`a`.`acttype` = `e`.`id` '.PHP_EOL
+                .  'WHERE (`a`.`section_id`='.$section_id.' )'.PHP_EOL
+                .    'AND (`a`.`date_start` <=\''.$dateend.'\')'.PHP_EOL
+               .    ' AND (`a`.`date_end`   >=\''.$datestart.'\' OR `a`.`rec_count` != 0) '.PHP_EOL
                .    $extrawhere.''
-               .   'ORDER BY '
-                .    '`a`.`date_start`,`a`.`time_start`';
+               .   'ORDER BY '.PHP_EOL
+                .    '`a`.`date_start`,`a`.`time_start`'.PHP_EOL;
             if (!$db = $database->query($sql))
             {
-                file_put_contents(WB_PATH.'/logs/procalc_'.$datestart.'.sql', $sql.PHP_EOL);
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.$database->get_errno().' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
-print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+                file_put_contents(WB_PATH.'/var/logs/procalc_'.$datestart.'.sql', $sql.PHP_EOL);
             }
-
-            $actions = array();
-            $overwrites = array();
+            if ($admin->is_authenticated() && $admin->ami_group_member('1')) {
+            }
+            $actions = [];
+            $aRetval = [];
+            $overwrites = [];
             if ($db->numRows() > 0) {
                 while ($ret = $db->fetchRow(MYSQLI_ASSOC)) {
                     $maxCount = $ret['rec_count'];
@@ -594,7 +738,7 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                     } elseif ($ret['rec_week'] != "") {
                         $iStart = microtime(true); // change Luisehahne
                         $ret_week = explode("+", $ret['rec_week']);
-                        $weeks = $ret_week[0] - 1;
+                        $weeks = (int)$ret_week[0] - 1;
                         $weekdays = explode(";", $ret_week[1]);
                         while (($dayDateStart <= $dayDateEnd || !$maxCount == 0) && ($dateCount < $maxCount || $maxCount < 1) && $dayDateStart <=
                         $lastCalendarDay) {
@@ -620,7 +764,7 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                                 $msg  = sprintf('created: [' . date('c') . ']' . ' Corrupted record -> %4d date_start -> %s', $ret['id'], $ret['date_start']) . PHP_EOL;
                                 $msg  = sprintf('created: [' . date('c') . ']' . ' Corrupted record -> %4d date_start -> %s', $ret['id'], $ret['date_start']) . PHP_EOL;
                                 $msg .= serialize($ret).PHP_EOL;
-                                file_put_contents(WB_PATH . '/logs/procalc_error.log', $msg);
+                                file_put_contents(WB_PATH . '/var/logs/procalc_error.log', $msg);
                                 break;
                             }
                         }
@@ -703,9 +847,7 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                                         $ret['fdate_end'] = date($useifformat, strtotime($ret['date_end']));
                                         $actions[] = $ret;
                                     }
-                                    ;
                                 }
-                                ;
                                 //$firstDay->add(new DateInterval('P'.$months.'M'));
                                 $firstDay->modify('+' . $months . ' month');
                                 $dateCount++;
@@ -823,7 +965,7 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                     }
                 }
                 usort($actions, "cmp");
-                return ($actions);
+#                return ($actions);
             } else {
 /*
                 print '<pre  class="mod-pre rounded">function <span>' . __function__ . '( ' . '' . ' );</span>  filename: <span>' .
@@ -832,12 +974,13 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                 print '</pre>';
                 flush(); //  ob_flush();;sleep(10); die();
 */
-                return (null);
             }
+            return $actions;
         }
 
 //#############################################################################
-        function MarkDayOk($day, //
+        function MarkDayOk(
+                $day, //
                 $month, //
                 $year, //
                 $actions, // Array with dates
@@ -845,43 +988,56 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
         ) { //
         // Return: 0: No Date active
 //         1: Yes there is date aczive
+            $bRetVal = false;
 //
 //#############################################################################
             $Termin = $actions[$ActionIndex];
+
             $dayend = substr($Termin['date_end'], -2);
             $monthend = substr($Termin['date_end'], 5, 2);
             $yearend = substr($Termin['date_end'], 0, 4);
+
             $daystart = substr($Termin['date_start'], 8, 2);
             $monthstart = substr($Termin['date_start'], 5, 2);
             $yearstart = substr($Termin['date_start'], 0, 4);
+
+            $DateRefString   = date('Y-m-d',\strtotime("$year-$month-$day"));
+            $DateStartString = date('Y-m-d',\strtotime($Termin['date_start']));
+            $DateEndString   = date('Y-m-d',\strtotime($Termin['date_end']));
+
+            $sDebugMsg = sprintf('%s %s',$DateStartString, $DateEndString);
+
             // Liegt der Starttermin in der Vergangenheit?
             if (IstStartTerminVergangeheit("$year-$month-$day", "$yearstart-$monthstart-$daystart") == 1) {
-                if (($monthend == $month && $day <= $dayend && $year == $year) || (($monthend > $month || $yearend > $year) && $day > $daystart) ||
-                        ($monthend > $month || $yearend > $year)) {
-                    return 1;
+                if (($monthend == $month && $day <= $dayend && $year == $year)
+                 || (($monthend > $month || $yearend > $year) && $day > $daystart)
+                 ||  ($monthend > $month || $yearend > $year)) {
+                    $bRetVal = true;
                 }
             } else
-            if (($day >= $daystart && $monthstart == $month)) { // Termin startet und endet in diesem Monat
-                return 1;
+            // Termin startet und endet in diesem Monat
+            if (($day >= $daystart && $monthstart == $month)) {
+                $bRetVal = true;
             }
-            return 0;
+            return $bRetVal;
         }
 
 //#############################################################################
-        function IstStartTerminVergangeheit($DateRefString, // Todays date
+        function IstStartTerminVergangeheit(  /* function IstStartTerminVergangeheit */
+                $DateRefString, // Todays date
                 $DateStartString // date to check
         ) { //
         //  Return: 0 - Date is not in the past
 //          1 - Yes, the date starts in the past
-//
-//
+            $bRetVal = false;
 //#############################################################################
-            // echo "DateStartString  $DateRefString <br>";
-            // echo "dateref $DateStartString <br>";
-            if (date("Y-m-d", strtotime("$DateStartString")) < date("Y-m-d", strtotime("$DateRefString"))) {
-                return 1;
+            // echo "DateStartString  $DateRefString <br>";date("Y-m-d", strtotime("$DateStartString")
+            // echo "dateref $DateStartString <br>";  date("Y-m-d", strtotime("$DateRefString"))
+            if (strtotime("$DateStartString") < strtotime("$DateRefString")) {
+//            if (date("Y-m-d", strtotime("$DateStartString")) < date("Y-m-d", strtotime("$DateRefString"))) {
+                $bRetVal = true;
             }
-            return 0;
+            return $bRetVal;
         }
 
         function ShowTermineDebug($month, $year, $actions) {
@@ -897,46 +1053,51 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                     $monthstart = substr($Termin['date_start'], 5, 2);
                     $yearstart = substr($Termin['date_start'], 0, 4);
                     echo "Termin am $daystart.$monthstart.$yearstart - $dayend.$monthend.$yearend ";
-                    if (IstStartTerminVergangeheit("$year-$month-$day", "$yearstart-$monthstart-$daystart") == 1)
+                    if (IstStartTerminVergangeheit("$year-$month-$day", "$yearstart-$monthstart-$daystart") == 1){
                         echo "--> alter Termin";
+                    }
                     echo "<br/>";
                 }
             }
         }
 
         function PrintArray($array) {
-            while (list($key, $value) = each($array)) {
+            foreach ($array as $key => $value){
                 echo "$key: $value ";
             }
         }
 
         /* writes ordered list of actions */
 
+        function ShowActionListEditor(array $localVariables) {
+/*
         function ShowActionListEditor($actions, $day = null, $pageid = null, $dayview) {
             global $action_types, $monthnames;
             global $month, $year;
             global $CALTEXT;
             $today = date("Y-m-d");
             $IsMonthOverview = $dayview;
+*/
+            if (isset($localVariables) && is_array($localVariables)){extract($localVariables);}
+            $pageid = $page_id;
             $BackToMonthLink = "<a href=?page_id=$pageid&amp;month=$month&amp;year=$year>[".$CALTEXT["CALENDAR-BACK-MONTH"]."]</a>";
             if (!$IsMonthOverview) {
-                $HeaderText = $monthnames[(int) $month] . ' ' . $year;
+                $HeaderText = $monthnames[(int)$month].' '.$year;
             } else {
-                $HeaderText = $day . '-' . $month . '-' . $year . '&nbsp;&nbsp;' . $BackToMonthLink;
+                $HeaderText = $day.'-'.$month.'-'.$year.'&nbsp;&nbsp;'.$BackToMonthLink;
             }
- ?>
+?>
     <div class="actionlist">
-        <h2><?php echo $HeaderText;
- ?></h2>
-        <table class="actionlist_table">
+        <h2><?php echo $HeaderText; ?></h2>
+        <table class="actionlist_table scrollable w3-table-all">
+            <thead class="w3-header-blue-wb">
             <tr class="actionlist_header">
-                <td><?php echo $CALTEXT['DATE'];
- ?></td>
-                <td><?php echo $CALTEXT['NAME'];
- ?></td>
-                <td><?php echo $CALTEXT['CATEGORY'];
- ?></td>
+                <th class="actionlist_date"><?php echo $CALTEXT['DATE'];?></th>
+                <th class="actionlist_description"><?php echo $CALTEXT['NAME'];?></th>
+                <th class="actionlist_type"><?php echo $CALTEXT['CATEGORY'];?></th>
             </tr>
+            </thead>
+            <tbody>
     <?php
                     $firstday = 1;
                     $lastday = DaysCount($month, $year);
@@ -945,6 +1106,7 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                     } else {
                         $ReplaceDay = 0;
                     }
+
                     for ($i = 0; $i < sizeof($actions); $i++) {
                         $tmp = $actions[$i];
                         $dayend = substr($tmp['date_end'], -2);
@@ -953,6 +1115,7 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                         $daystart = substr($tmp['date_start'], 8, 2);
                         $monthstart = substr($tmp['date_start'], 5, 2);
                         $yearstart = substr($tmp['date_start'], 0, 4);
+
                         if (MarkDayOk($day, $month, $year, $actions, $i) || !$IsMonthOverview) {
                             if (IstStartTerminVergangeheit("$year-$month-$day", "$yearstart-$monthstart-$daystart") == 1) {
                                 $link = "?month=$monthstart&amp;year=$yearstart&amp;day=$daystart&amp;show=-1&amp;edit=edit";
@@ -962,55 +1125,66 @@ print_r( $sql."\n".$database->get_error() ); print '</pre>'; flush (); //  ob_fl
                             if (isset($pageid)) {
                                 $link .= "&amp;page_id=$pageid";
                             }
-$sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['format'].';';
-  ?>
+/*  */
+                        $sBGColor = (( isset($tmp['acttype']) &&isset($action_types[$tmp['acttype']])) ? $action_types[$tmp['acttype']]['format'] : '#B8B8B8');
+                        $sBorderBottom = ' border-bottom: 3px solid '.$sBGColor.';';
+?>
                     <tr>
-                        <td class="actionlist_date" style="width: 18%; vertical-align: top;" ><?php
+                        <td class="actionlist_date"><?php
                     echo '<span style="'.$sBorderBottom.'">'.$tmp['fdate_start'];
                     if ($tmp['date_end'] != $tmp['date_start']) { //only show end date if event has multiple days
-                        echo "&nbsp;/&nbsp;";
-                        echo $tmp['fdate_end'];
+                        echo '&nbsp;/&nbsp;'.$tmp['fdate_end'];
                     }
                     echo '</span>';
-     ?>
+?>
                         </td>
-                        <td valign="top" style="vertical-align: top;">
-                            <a href="<?php echo $link . '&amp;id=' . $tmp["id"];
-     ?>"><?php echo $tmp["name"];
- ?></a>
+                        <td class="actionlist_description">
+                            <a href="<?php echo $link . '&amp;id=' . $tmp["id"]; ?>"><?php echo $tmp["name"];?></a>
                         </td>
-                        <td class="actionlist_type" style="vertical-align: top; width: 25%;"><?php
+                        <td class="actionlist_type">
+<?php
                 if ($tmp['acttype'] != 0) {
                     if (array_key_exists($tmp['acttype'], $action_types)) {
                         if ($action_types[$tmp['acttype']] != null)
-                            echo $action_types[$tmp['acttype']]['name'];
+                            $string = str_replace(["\r\n", "\r", "\n"], "<br>", $action_types[$tmp['acttype']]['name']);
+                            echo $string;
                     } else {
                         //echo "Action Type not valid";
                     }
                 }
-     ?>
+?>
                         </td>
                     </tr>
-        <?php
-                        }
-                    }
-     ?>
+<?php                   }  // end MarkDayOk
+                    } // end for $actions
+?>
+            </tbody>
         </table>
     </div>
         <?php
         }
 
 //######################################################################
-        function ShowActionDetailsFromId($actions, $id, $section_id, $day) { //
+        function ShowActionDetailsFromId(array $localVariables) { //
+//        function ShowActionDetailsFromId($actions, $id, $section_id, $day) { //
         //  Return: nothing
-            global $CALTEXT, $database, $admin;
+//            global $CALTEXT, $database, $admin;
+            if (isset($localVariables) && is_array($localVariables)){extract($localVariables);}
             foreach ($actions as $a) {
-                if ($a["id"] == $id && date("d", strtotime($a['date_start'])) == $day) {
+                $sDayFormat = ($day['0']=='0' ? 'd' : 'j');
+                if ($a["id"] == $id && date($sDayFormat, strtotime($a['date_start'])) == $day) {
                     $tmp = $a;
                     break;
                 }
             }
-            ShowActionEntry($tmp, $section_id);
+            if (!isset($tmp)){
+                $json = \json_encode($actions, JSON_PRETTY_PRINT);
+                if (\file_put_contents(WB_PATH . '/var/logs/procalc_tmp_error.log',$json)) {
+                    \trigger_error(sprintf('[%d] Can\'t call ShowActionEntry section_id = %d count(action) = %d id =  %d day = %d show = %d dayview = %d', __LINE__,$section_id, sizeof($actions),$id,$day, $show, $dayview),E_USER_WARNING);
+                }
+            } else {
+                echo ShowActionEntry($tmp, $section_id);
+            }
         }
 
 //######################################################################
@@ -1019,15 +1193,31 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
             global $CALTEXT, $action_types;
             global $page_id, $weekdays;
             global $database, $admin, $wb;
+$description = '
+            <div class="field_line">
+              <div class="field_value">
+'.PHP_EOL;
+            if (!isset($tmp)){
+#                \trigger_error(sprintf('[%d] Missing action/tmp ', __LINE__),E_USER_WARNING);
+                echo '<div>'.sprintf('[%d] '.$CALTEXT['NO_DESCRIPTION'], __LINE__).'</div>'.PHP_EOL;
+                echo '<div>'.'<a class="go_back" href="?page_id='.$page_id.'&amp;month='.date('m').'&amp;year='.date('Y').'">'.$CALTEXT['BACK'].'</a>'.'</div>'.PHP_EOL;
+
+$description .= '
+                </div>
+            </div>
+'.PHP_EOL;
+                return;
+            }
             // Fetch all settings from db
             $sql = "SELECT * FROM `" . TABLE_PREFIX . "mod_procalendar_settings` WHERE `section_id`=$section_id ";
-            $db = $database->query($sql);
+            $oRes = $database->query($sql);
             $Sday = 0;
             $Utime = 0;
             $Uformat = '';
             $Uifformat = '';
-            if ($db->numRows() > 0) {
-                while ($rec = $db->fetchRow(MYSQLI_ASSOC)) {
+            if ($oRes->numRows() > 0) {
+#                while ($rec = $oRes->fetchRow(MYSQLI_ASSOC)) {
+                $rec = $oRes->fetchRow(MYSQLI_ASSOC);
                     $startday = $rec["startday"];
                     $usetime = $rec["usetime"];
                     $onedate = $rec["onedate"];
@@ -1061,21 +1251,17 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
                     $custom9 = $rec["custom9"];
                     $customtemplate9 = $rec["customtemplate9"];
                     $posttempl = $rec["posttempl"];
-                }
+#                }
             }
             //$previmg   = WB_URL."/modules/".basename(__DIR__)."/prev.png";
             // echo "<a class=\"go_back\" href=\"javascript:history.back()\" >&laquo; " . $CALTEXT['BACK'] . "</a>";
-
-/*
             $ds = $tmp['date_start'] . " " . substr($tmp['time_start'], 0, 5);
             $de = $tmp['date_end'] . " " . substr($tmp['time_end'], 0, 5);
             $datetime_start = mktime(substr($ds, 11, 2), substr($ds, 14, 2), 0, substr($ds, 5, 2), substr($ds, 8, 2), substr($ds, 0, 4));
             $datetime_end = mktime(substr($de, 11, 2), substr($de, 14, 2), 0, substr($de, 5, 2), substr($de, 8, 2), substr($de, 0, 4));
-*/
             $datetime_start = strtotime($tmp['date_start'].'  '.$tmp['time_start']);
             $datetime_end   = strtotime($tmp['date_end'] . '  '.$tmp['time_end']);
 
-            $newline = chr(13) . chr(10);
             $name = $tmp['name'];
 
             $date_start = date($useifformat, $datetime_start);
@@ -1086,117 +1272,185 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
             $action_name = "";
 
             if ($tmp['acttype'] > 0){
-                $action_name = (explode("#", $action_types[$tmp['acttype']]));
+                $action_name = $action_types[$tmp['acttype']];
             }
             // 2011-oct-01 PCWacht
             // Added date_simple , just shows date (start (and end when given)
             // First set date_simple to startdate
             $date_simple = $date_start;
-            $date_full = $newline . '<div class="field_line">' . $newline;
-            $date_full .= '<div class="field_title">';
+
+//            $date_full = PHP_EOL . '<div class="field_line">'.PHP_EOL;
+//            $date_full .= '<label class="field_title">'.PHP_EOL;
+/*
+*/
+$date_full = '
+            <div class="field_line">
+                <div class="field_title">
+'.PHP_EOL;
             if ($tmp['date_start'] == $tmp['date_end']) {
                 if ($tmp['time_start'] <> '00:00:00') {
                     $date_full .= $CALTEXT['DATE-AND-TIME'];
                 } else
                     $date_full .= $CALTEXT['CAL-OPTIONS-ONEDATE'];
-            } else
+            } else{
                 $date_full .= $CALTEXT['FROM'];
-            $date_full .= '</div>' . $newline;
-            $date_full .= date($useifformat, $datetime_start) . $newline;
+            }
+$date_full .= '
+                </div>
+'.PHP_EOL;
+
+            $date_full .= date($useifformat, $datetime_start);
+
             if ($usetime) {
                 $start = substr($tmp['time_start'], 0, -3);
                 if ($start != "00:00") {
                     $date_full .= " (" . $start . "&nbsp;" . $CALTEXT['TIMESTR'] . ")";
                 }
             }
+
             if (count($action_name) > 1) {
-                $day_index = array(
-                    1 => "Mon",
-                    "Tue",
-                    "Wed",
-                    "Thu",
-                    "Fri",
-                    "Sat",
-                    "Sun");
-                $date_full .= '</div>' . $newline . '<div class="field_line">';
+                $day_index = [
+                    '0' =>  "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
+                    '1' =>  "Mon,Sun,Tue,Wed,Thu,Fri,Sat",
+                    ];
+//                $date_full .= '</div>' . PHP_EOL . '<div class="field_line">';
+
+$date_full .= '
+            </div>
+            <div class="field_line">
+'.PHP_EOL;
+/*
+$date_full .= '
+';
                 for ($i = 1; $i < count($action_name); $i++) {
-                    $date_full .= $weekdays[array_search($action_name[$i], $day_index)] . ' ';
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( $action_name ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+*/
+
+                foreach ($action_name as $aValue) {
+//                    $date_full .= $weekdays[array_search($aValue['format_days'], $day_index)].PHP_EOL;
+                    $date_full .= ''.PHP_EOL;
                 }
             }
-            $date_full .= '</div>' . $newline;
+$date_full .= '
+            </div>
+'.PHP_EOL;
+
             if (($tmp['date_start'] != $tmp['date_end']) || (($tmp['date_start'] == $tmp['date_end']) && (($tmp['time_start'] != $tmp['time_end']) &&
                     ((substr($tmp['time_end'], 0, -3)) != "00:00")))) {
-                $date_full .= '<div class="field_line">';
+//                $date_full .= '<div class="field_line">';
+$date_full .= '
+            <div class="field_line">
+'.PHP_EOL;
                 if ($tmp['date_end'] or $tmp['time_end']) {
-                    $date_full .= '<div class="field_title">' . $CALTEXT['DEADLINE'] . '</div>' . $newline;
+$date_full .= '
+                <div class="field_title">
+'.PHP_EOL;
+                $date_full .= '' . $CALTEXT['DEADLINE'].PHP_EOL;
+$date_full .= '
+                </div>
+'.PHP_EOL;
                     if ($tmp['date_end']) {
                         $date_full .= date($useifformat, $datetime_end);
                         // 2011-oct-01 PCWacht
                         // and add dateend to date_simple
                         $date_simple .= ' - ' . $date_end;
                     }
+
                     if ($usetime) {
                         $ende = substr($tmp['time_end'], 0, -3);
                         if ($ende != "00:00") {
-                            $date_full .= " (" . $ende . "&nbsp;" . $CALTEXT['TIMESTR'] . ")";
+                            $date_full .= " (" . $ende . "&nbsp;" . $CALTEXT['TIMESTR'] . ")".PHP_EOL;
                         }
                     }
                 }
-                $date_full .= '</div>' . $newline;
+//                $date_full .= '</div>' . PHP_EOL;
+$date_full .= '
+            </div>
+'.PHP_EOL;
             }
-            $category = $newline;
+            $category = '';
             if ($tmp['acttype'] > 0) {
-                $category .= '<div class="field_line">' . $newline;
-                $category .= '<div class="field_title">' . $CALTEXT['CATEGORY'] . '</div>' . $newline;
-                if ($tmp['acttype'] > 0)
-                    $category .= $action_name[0];
-                $category .= '</div>' . $newline;
+//                $category .= '<div class="field_line">' . PHP_EOL;
+//                $category .= '<label class="field_title">' . $CALTEXT['CATEGORY'] . '</label>' . $newline;
+$category .= '
+            <div class="field_line">
+                <div class="field_title">
+'.PHP_EOL;
+$category .= $CALTEXT['CATEGORY'].'
+                </div>
+'.PHP_EOL;
+
+                if ($tmp['acttype'] > 0){
+                    $category .= $action_name['name'].PHP_EOL;
+                }
+//                $category .= '</div>' . PHP_EOL;
+$category .= '
+            </div>
+'.PHP_EOL;
+
             }
             $custom_output1 = '';
-            if (($usecustom1 <> 0 && $tmp['custom1'] <> ''))
-                $custom_output1 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom1, $tmp['custom1']), $customtemplate1).$newline;
+            if (($usecustom1 <> 0 && $tmp['custom1'] <> '')){
+                $custom_output1 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom1, $tmp['custom1']), $customtemplate1).PHP_EOL;
+            }
             $custom_output2 = '';
-            if (($usecustom2 <> 0 && $tmp['custom2'] <> ''))
-                $custom_output2 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom2, $tmp['custom2']), $customtemplate2).$newline;
+            if (($usecustom2 <> 0 && $tmp['custom2'] <> '')){
+                $custom_output2 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom2, $tmp['custom2']), $customtemplate2).PHP_EOL;
+            }
             $custom_output3 = '';
-            if (($usecustom3 <> 0 && $tmp['custom3'] <> ''))
-                $custom_output3 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom3, $tmp['custom3']), $customtemplate3).$newline;
+            if (($usecustom3 <> 0 && $tmp['custom3'] <> '')){
+                $custom_output3 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom3, $tmp['custom3']), $customtemplate3).PHP_EOL;
+            }
             $custom_output4 = '';
-            if (($usecustom4 <> 0 && $tmp['custom4'] <> ''))
-                $custom_output4 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom4, $tmp['custom4']), $customtemplate4).$newline;
+            if (($usecustom4 <> 0 && $tmp['custom4'] <> '')){
+                $custom_output4 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom4, $tmp['custom4']), $customtemplate4).PHP_EOL;
+            }
             $custom_output5 = '';
-            if (($usecustom5 <> 0 && $tmp['custom5'] <> ''))
-                $custom_output5 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom5, $tmp['custom5']), $customtemplate5).$newline;
+            if (($usecustom5 <> 0 && $tmp['custom5'] <> '')){
+                $custom_output5 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom5, $tmp['custom5']), $customtemplate5).PHP_EOL;
+            }
             $custom_output6 = '';
-            if (($usecustom6 <> 0 && $tmp['custom6'] <> ''))
-                $custom_output6 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom6, $tmp['custom6']), $customtemplate6).$newline;
+            if (($usecustom6 <> 0 && $tmp['custom6'] <> '')){
+                $custom_output6 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom6, $tmp['custom6']), $customtemplate6).PHP_EOL;
+            }
             $custom_output7 = '';
-            if (($usecustom7 <> 0 && $tmp['custom7'] <> ''))
-                $custom_output7 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom7, $tmp['custom7']), $customtemplate7).$newline;
+            if (($usecustom7 <> 0 && $tmp['custom7'] <> '')){
+                $custom_output7 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom7, $tmp['custom7']), $customtemplate7).PHP_EOL;
+            }
             $custom_output8 = '';
-            if (($usecustom8 <> 0 && $tmp['custom8'] <> ''))
-                $custom_output8 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom8, $tmp['custom8']), $customtemplate8).$newline;
+            if (($usecustom8 <> 0 && $tmp['custom8'] <> '')){
+                $custom_output8 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom8, $tmp['custom8']), $customtemplate8).PHP_EOL;
+            }
             $custom_output9 = '';
-            if (($usecustom9 <> 0 && $tmp['custom9'] <> ''))
-                $custom_output9 .= str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom9, $tmp['custom9']), $customtemplate9).$newline;
-            $description = '<div class="field_line">' . $newline;
-            $description .= '<div class="field_value">' . $newline;
-            if (strlen($tmp['description']) > 0){
+            if (($usecustom9 <> 0 && $tmp['custom9'] <> '')){
+                $custom_output9 = str_replace(array('[CUSTOM_NAME]', '[CUSTOM_CONTENT]'), array($custom9, $tmp['custom9']), $customtemplate9).PHP_EOL;
+            }
+//            $description = '<div class="field_line">' . PHP_EOL;
+//            $description .= '<div class="field_value">' . PHP_EOL;
+
+            if (mb_strlen($tmp['description']) > 0){
                 $sFilterApi = WB_PATH.'/modules/output_filter/OutputFilterApi.php';
                 if (is_readable($sFilterApi)) {
                     require_once($sFilterApi);
                     $tmp['description'] = OutputFilterApi('ReplaceSysvar', $tmp['description']);
                 }
-                $description .= $tmp['description'];
+                $description .= $tmp['description'].PHP_EOL;
             }else{
-                $description .= $CALTEXT['NO_DESCRIPTION'];
+#                \trigger_error(sprintf('[%d] Can\'t call ShowActionEntry section_id = %d', __LINE__,$section_id),E_USER_WARNING);
+                $description .= sprintf(''.$CALTEXT['NO_DESCRIPTION']).PHP_EOL;
             }
-            $description .= '</div>' . $newline;
-            $description .= '</div>' . $newline;
+//            $description .= '</div>' . PHP_EOL;
+//            $description .= '</div>' . PHP_EOL;
+$description .= '
+                </div>
+            </div>
+'.PHP_EOL;
+
             $monthstart = substr($tmp['date_start'], 5, 2);
             $yearstart = substr($tmp['date_start'], 0, 4);
-            //$back = '<a class="go_back" href="?page_id='.$page_id.'&amp;month='.$monthstart.'&amp;year='.$yearstart.'">'.$CALTEXT['BACK'].'</a>'.$newline;
-            $back = "<a class=\"go_back\" href=\"javascript:history.back()\" >" . $CALTEXT['BACK'] . "</a>";
+            $back = '<a class="go_back" href="?page_id='.$page_id.'&amp;month='.$monthstart.'&amp;year='.$yearstart.'">'.$CALTEXT['BACK'].'</a>'.PHP_EOL;
+            //$back = "<a class=\"go_back\" href=\"javascript:history.back()\" >" . $CALTEXT['BACK'] . "</a>";
             $vars = array(
                 '[NAME]',
                 '[DATE_FULL]',
@@ -1230,11 +1484,9 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
                 $description,
                 $back);
             $post_content = str_replace($vars, $values, $posttempl);
-            // Make sure wblinks and droplets are executed;
-//            $wb->preprocess($post_content);
-            print $post_content;
+            return $post_content;
             /**
-             * <script type="text/javascript">
+             * <script>
              * d = document.getElementsByTagName("div");
              * for (e = 1; e < d.length; e++)
              * if (d[e].className == "info_block")
@@ -1250,32 +1502,35 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
 
 //######################################################################
         function createBackground($colors, $day) {
-            $width = 60;
-            if (!function_exists('show_menu'))
-                $width = "30";
-            $height = 4;
-            $merge = ImageCreate($width, $height);
-            $img = ImageCreate($width, $height);
-            $count = count($colors);
-            for ($i = 0; $i < $count; $i++) {
-                $red = hexdec(substr($colors[$i], 1, 2));
-                $green = hexdec(substr($colors[$i], 3, 2));
-                $blue = hexdec(substr($colors[$i], 5, 2));
-                ${'color' . $i} = ImageColorAllocate($img, $red, $green, $blue);
+            if (is_writable(WB_PATH."/modules/".basename(__DIR__)."/images/")){
+                $width = 60;
+                if (!function_exists('show_menu')){
+                    $width = "30";
+                }
+                $height = 4;
+                $merge = ImageCreate($width, $height);
+                $img = ImageCreate($width, $height);
+                $count = count($colors);
+                for ($i = 0; $i < $count; $i++) {
+                    $red = hexdec(substr($colors[$i], 1, 2));
+                    $green = hexdec(substr($colors[$i], 3, 2));
+                    $blue = hexdec(substr($colors[$i], 5, 2));
+                    ${'color' . $i} = ImageColorAllocate($img, $red, $green, $blue);
+                }
+                for ($i = 0; $i < $count; $i++) {
+                    ImageFilledRectangle($img, $i * $width / $count, 0, ($i + 1) * $width / $count, $height, ${'color' . $i});
+                }
+                ImagePNG($img, WB_PATH."/modules/".basename(__DIR__)."/images/".$day.".png");
+                ImageDestroy($img);
             }
-            for ($i = 0; $i < $count; $i++) {
-                ImageFilledRectangle($img, $i * $width / $count, 0, ($i + 1) * $width / $count, $height, ${'color' . $i});
-            }
-            ImagePNG($img, WB_PATH."/modules/".basename(__dir__)."/images/".$day.".png");
-            ImageDestroy($img);
         }
 
-        ;
-
 //######################################################################
-        function ShowActionDetails($actions, $section_id, $day, $month, $year, $show = 0, $dayview = 0)
+        function ShowActionDetails(array $localVariables)
+//        function ShowActionDetails($actions, $section_id, $day, $month, $year, $show = 0, $dayview = 0)
         {
-            global $action_types, $public_stat, $page_id, $CALTEXT;
+//            global $action_types, $public_stat, $page_id, $CALTEXT;
+            if (isset($localVariables) && is_array($localVariables)){extract($localVariables);}
             if (sizeof($actions) == 0) {
                 echo "&nbsp;" . $CALTEXT['NODATES'];
                 return;
@@ -1290,7 +1545,11 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
             } else {
                 $tmp = $actions[$show];
             }
-            ShowActionEntry($tmp, $section_id);
+            if (!isset($tmp)){
+                \trigger_error(sprintf('[%d] Can\'t call ShowActionEntry section_id = %d count(action) = %d show = %d dayview = %d', __LINE__,$section_id, sizeof($actions), $show, $dayview),E_USER_WARNING);
+            } else {
+                echo ShowActionEntry($tmp, $section_id);
+            }
         }
 
         function IsStartDayMonday($SecId) {
@@ -1321,37 +1580,18 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
 //
 //######################################################################
 
-    function makeSql($iParentKey = 0)
-    {
-        $iParentKey = intval($iParentKey);
-        $sql  = 'SELECT ( SELECT COUNT(*) '
-              .          'FROM `'.TABLE_PREFIX.'pages` `x` '
-              .          'WHERE x.`parent`=p.`page_id`'
-              .        ') `children`, '
-              .        's.`module`, MAX(s.`publ_start` + s.`publ_end`) published, p.`link`, '
-              .        '(SELECT MAX(`position`) FROM `'.TABLE_PREFIX.'pages` '
-              .        'WHERE `parent`='.$iParentKey.') max_position, '
-              .        '0 min_position, '
-              .        'p.`position`, '
-              .        'p.`page_id`, p.`parent`, p.`level`, p.`language`, p.`admin_groups`, '
-              .        'p.`admin_users`, p.`viewing_groups`, p.`viewing_users`, p.`visibility`, '
-              .        'p.`menu_title`, p.`page_title`, p.`page_trail`, p.`modified_when`, '
-              .        'GROUP_CONCAT(CAST(CONCAT(s.`section_id`, \' - \', s.`module`) AS CHAR) ORDER BY s.`position` SEPARATOR \'\n\') `section_list` '
-              . 'FROM `'.TABLE_PREFIX.'pages` p '
-              .    'INNER JOIN `'.TABLE_PREFIX.'sections` s '
-              .    'ON p.`page_id`=s.`page_id` '
-              . 'WHERE `parent`='.$iParentKey.' '
-              .    ((PAGE_TRASH != 'inline') ? 'AND `visibility`!=\'deleted\' ' : '')
-              . 'GROUP BY p.`page_id` '
-              . 'ORDER BY p.`position` ASC';
-        return $sql;
-    }
-
     function IteratePageTree($iParent = 0, $sTpl='', $iCurrentId=0)
     {
         global $admin, $database, $sContent;
         // Get page list from database
-        if (($oPages = $database->query(makeSql($iParent))))
+        $sSqlSet  = 'SELECT ( SELECT COUNT(*) '
+              .          'FROM `'.TABLE_PREFIX.'pages` `x` '
+              .          'WHERE x.`parent`=`p`.`page_id`'
+              .        ') `children`, `p`.`page_id`,`p`.`menu_title`,`p`.`page_title`,`p`.`level` '
+              .        ' FROM `'.TABLE_PREFIX.'pages` `p` '
+              .        'WHERE `parent`='.$iParent.' '
+              . 'ORDER BY `p`.`position` ASC';
+        if (($oPages = $database->query($sSqlSet)))
         {
             while($aPage = $oPages->fetchRow(MYSQLI_ASSOC))
             { // iterate through the current branch
@@ -1386,50 +1626,6 @@ $sBorderBottom = ' border-bottom: 3px solid '.$action_types[$tmp['acttype']]['fo
         }
         return $sContent;
     }
-
-        function _get_parent_list($parent, $templ, $current) {
-            global $admin, $database, $content;
-            $query = "SELECT * FROM " . TABLE_PREFIX . "pages WHERE parent = '$parent' AND visibility!='deleted' ORDER BY position ASC";
-            $get_pages = $database->query($query);
-            while ($page = $get_pages->fetchRow(MYSQLI_ASSOC)) {
-                if ($admin->page_is_visible($page) == false)
-                    continue;
-                // Get user perms
-                $admin_groups = explode(',', str_replace('_', '', $page['admin_groups']));
-                $admin_users = explode(',', str_replace('_', '', $page['admin_users']));
-                $in_group = false;
-                foreach ($admin->get_groups_id() as $cur_gid) {
-                    if (in_array($cur_gid, $admin_groups)) {
-                        $in_group = true;
-                    }
-                }
-
-                // Title -'s prefix
-                $title_prefix = '';
-                for ($i = 1; $i <= $page['level']; $i++) {
-                    $title_prefix .= ' - ';
-                }
-                $select_content = '';
-                if ($current == $page['page_id']) {
-                    $select_content = ' selected="selected"';
-                }
-                // $content .= '  <option value="'.$page['page_id'].'">'.$title_prefix.$page['page_title'].'</option>';
-
-                $content .= str_replace(array(
-                    '[PAGE_ID]',
-                    '[PAGE_TITLE]',
-                    '[SELECTED]'), array(
-                          $page['page_id'],
-                          $title_prefix . $page['page_title'],
-                          $select_content),
-                          $templ
-                          );
-
-                get_parent_list($page['page_id'], $templ, $current);
-            }
-            return $content;
-        }
-
 //
 // End function parentlist
 //######################################################################
@@ -1453,10 +1649,11 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 */
 //######################################################################
         function select_wblink($title, $name='', $wbid=0, $text='') {
-            global $tmp;
-            $aRetval = '';
+            global $tmp,$sContent;
+            $sContent = '';
+            $aRetval = '<span class="clearfix"></span>';
             $aRetval .= '<div class="field_line">'.PHP_EOL;
-            $aRetval .= '  <div class="field_title">'. trim($title).'</div>'.PHP_EOL;
+            $aRetval .= '  <label class="field_title">'. trim($title).'</label>'.PHP_EOL;
 
             $start    = '  <select name="' . $name . '" id="' . $name . '" class="inputbox" size="1" style="width: 40%;">'.PHP_EOL;
             $start   .= '    <option value="">' . $text . '</option>'.PHP_EOL;
@@ -1466,6 +1663,7 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 
             $sTpl     = '  <option value="[PAGE_ID]" [SELECTED]>[MENU_TITLE]</option>';
             $aRetval .= $start.IteratePageTree(0, $sTpl, $wbid).$end;  //
+
             return $aRetval;
         }
 
@@ -1481,18 +1679,22 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 //
 //######################################################################
         function select_image($title, $name, $name_img, $image, $img_text, $img_text2) {
+
+            echo '<span class="clearfix"></span>'.PHP_EOL;
             echo '<div class="field_line">'.PHP_EOL;
-            echo '  <div class="field_title">'.PHP_EOL . $title . '</div>'.PHP_EOL;
+            echo '  <label class="field_title">'.PHP_EOL . $title . '</label>'.PHP_EOL;
             echo '  <input name="' . $name_img . '" type="file" style="width:410px;" />'.PHP_EOL;
             echo '</div>'.PHP_EOL;
+            echo '<span class="clearfix"></span>'.PHP_EOL;
             echo '<div class="field_line">'.PHP_EOL;
-            echo '  <div class="field_title">'.PHP_EOL . $img_text . '</div>'.PHP_EOL;
+            echo '  <label class="field_title">'.PHP_EOL . $img_text . '</label>'.PHP_EOL;
             echo '  <select name="' . $name . '" size="1" style="width:410px;">'.PHP_EOL;
             echo '    <option value="0" >' . $img_text2 . '</option>'.PHP_EOL;
-            if ($handle = opendir(WB_PATH . MEDIA_DIRECTORY . '/calendar')) {
+
+            if ($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/calendar')) {
                 while (false !== ($file = readdir($handle))) {
                     if ($file != "." && $file != "..") {
-                        echo '<option value="' . WB_URL . MEDIA_DIRECTORY . '/calendar/' . $file . '"';
+                        echo '<option value="'.'{SYSVAR:MEDIA_REL}/calendar/'.$file.'"';
                         if (strpos($image, $file))
                             echo ' selected="selected"';
                         echo '>' . $file . '</option>'.PHP_EOL;
@@ -1500,6 +1702,7 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 }
                 closedir($handle);
             }
+
             echo '</select>'.PHP_EOL;
             echo '</div>'.PHP_EOL;
         }
@@ -1510,18 +1713,29 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 //######################################################################
 //
         /* this function is used in modify.php for adding new actions and changing details of older actions */
-        function ShowActionEditor($actions, $day, $show = 0, $dayview, $editMode, $month, $year, $edit_id) {
-            global $action_types, $public_stat, $weekdays, $monthnames;
+        function ShowActionEditor(array $localVariables) {
+//        function ShowActionEditor($actions, $day, $show = 0, $dayview, $editMode, $month, $year, $edit_id) {
+/*
+            global $action_types, $public_stat, $weekdays, $monthnames,$year, $month, $day;
             global $page_id;
-            global $year, $month, $day;
             global $admin;
             global $CALTEXT;
             global $section_id;
             // Added PCWacht
             // Fetch settings
             global $database;
+*/
+            if (isset($localVariables) && is_array($localVariables)){extract($localVariables);}
+            $sql = "SELECT COUNT(*) FROM " . TABLE_PREFIX . "mod_procalendar_settings WHERE section_id='$section_id'";
+            if (!($numRow = $database->get_one($sql))){
+              echo sprintf('%s',$database->get_error());
+              include(__DIR__.'/add.php');
+            } else {
+            }
             $sql = "SELECT * FROM " . TABLE_PREFIX . "mod_procalendar_settings WHERE section_id='$section_id'";
-            $db = $database->query($sql);
+            if (!$db = $database->query($sql)){
+              echo sprintf('%s',$database->get_error());
+            }
             if ($db->numRows() > 0) {
                 $rec = $db->fetchRow(MYSQLI_ASSOC);
                 // Added PCWacht
@@ -1551,6 +1765,8 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 $custom8 = $rec["custom8"];
                 $usecustom9 = $rec["usecustom9"];
                 $custom9 = $rec["custom9"];
+            } else {
+                echo sprintf('%s settings found',$db->numRows());
             }
             $jscal_today = gmdate('Y/m/d');
             if ($editMode == "edit") {
@@ -1618,14 +1834,16 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
             $datetime_start = strtotime($tmp['date_start'].'  '.$tmp['time_start']);
             $datetime_end   = strtotime($tmp['date_end'] . '  '.$tmp['time_end']);
 /*
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( $datetime_end ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+*/
             $ds = $tmp['date_start']." " . substr($tmp['time_start'], 0, 5);
             $de = $tmp['date_end'] . " " . substr($tmp['time_end'], 0, 5);
             $datetime_start = mktime(substr($ds, 11, 2), substr($ds, 14, 2), 0, substr($ds, 5, 2), substr($ds, 8, 2), substr($ds, 0, 4));
             $datetime_end   = mktime(substr($de, 11, 2), substr($de, 14, 2), 0, substr($de, 5, 2), substr($de, 8, 2), substr($de, 0, 4));
-*/
+$sActionUrl = WB_URL . '/modules/' . basename(__DIR__) . '/save.php';
 ?>
     <div class="event_details">
-        <?php $sActionUrl = WB_URL . '/modules/' . basename(__DIR__) . '/save.php'; ?>
         <form name="editcalendar" action="<?php echo $sActionUrl; ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="cal_id" value="<?php echo $cal_id; ?>"/>
             <input type="hidden" name="page_id" value="<?php echo $page_id; ?>"/>
@@ -1634,20 +1852,23 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
             <input type="hidden" name="jscal_format" value="<?php echo $jscal_format; ?>" />
 
             <div id="buttonrow">
-<?php $url = ADMIN_URL . "/pages/modify.php?page_id=$page_id&amp;edit=new";
+<?php $url = ADMIN_URL . "/pages/modify.php?page_id=$page_id&edit=new";
  ?>
 <?php // change Luisehahne; ?>
-<?php $sBackUrl = WB_URL . '/modules/' . basename(__dir__) . '/modify_settings.php?page_id=' . $page_id . '&amp;section_id=' . $section_id . ''; ?>
+<?php $sBackUrl = WB_URL . '/modules/' . basename(__DIR__) . '/modify_settings.php?page_id=' . $page_id . '&section_id=' . $section_id . ''; ?>
 <?php if ($admin->ami_group_member('1')) { ?>
-            <input type="button" value="<?php echo $CALTEXT['SETTINGS']; ?>" class="edit_button float_right" onclick="window.location = '<?php echo $sBackUrl; ?>'" />
+            <input type="button" value="<?php echo $CALTEXT['SETTINGS']; ?>" class="edit_button float_right w3-blue-wb w3-round w3-hover-green w3-padding-4" onclick="window.location = '<?php echo $sBackUrl; ?>'" />
 <?php } ?>
-                <input class="edit_button" type="button" value="<?php echo $CALTEXT['NEW-EVENT']; ?>" onclick='document.location.href = "<?php echo $url; ?>"' />
+                <input class="edit_button w3-blue-wb w3-round w3-hover-green w3-padding-4" type="button" value="<?php echo $CALTEXT['NEW-EVENT']; ?>" onclick='document.location.href = "<?php echo $url; ?>"' />
 <?php if ($editMode == "new" || $editMode == "edit") { ?>
-                    <input class="edit_button" type="submit" value="<?php echo $CALTEXT['SAVE']; ?>" />
+                <input class="edit_button w3-blue-wb w3-round w3-hover-green w3-padding-4" type="submit" value="<?php echo $CALTEXT['SAVE']; ?>" />
     <?php if ($editMode == "edit") { ?>
-            <input class="edit_button" name="saveasnew" type="submit" value="<?php echo $CALTEXT['SAVE-AS-NEW']; ?>"/>
-            <input class="edit_button" type="submit" name="delete" value="<?php echo $CALTEXT['DELETE']; ?>" />
+            <input class="edit_button w3-blue-wb w3-round w3-hover-green w3-padding-4" name="saveasnew" type="submit" value="<?php echo $CALTEXT['SAVE-AS-NEW']; ?>"/>
+            <input id="delete" class="edit_button w3-blue-wb w3-round w3-hover-red w3-padding-4" type="submit" name="delete" value="<?php echo $CALTEXT['DELETE']; ?>" />
         <?php } ?>
+<?php } ?>
+<?php if ($editMode == "new" || $editMode == "edit") { ?>
+                <input type="button" class="edit_button w3-blue-wb w3-round w3-hover-red w3-padding-4" value="<?php echo $CALTEXT['BACK']; ?>" onclick="window.location='<?php echo ADMIN_URL; ?>/pages/modify.php?page_id=<?php echo $page_id; ?>';" />
 <?php } ?>
             </div>
 
@@ -1659,36 +1880,39 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 ?>
                 <span class="clearfix"></span>
                 <div class="field_line" style="display: block;">
-                    <div class="field_title"><?php echo $CALTEXT['FROM']; ?></div>
-                    <input name="date1" id="date1" class="date-pick" value="<?php echo date($jscal_ifformat, $datetime_start); ?>"/>
+                    <label class="field_title"><?php echo $CALTEXT['FROM']; ?></label>
+                    <input type="text" name="date1" id="date1" class="date-pick" value="<?php echo date($jscal_ifformat, $datetime_start); ?>"/>
     <?php if ($use_time <> 0) { ?>
-                    &nbsp; &nbsp; <input type="text" id="start_time" name="time_start" value="<?php print substr($tmp['time_start'], 0, 5); ?>" style="width:50px;" />
+                    <input type="text" id="start_time" name="time_start" value="<?php echo substr($tmp['time_start'],0,5); ?>" style="width: 50px;" />
     <?php } ?>
                 </div>
 <?php
-                if ($onedate) {
-                    $hidden = "";
-                } else {
-                    $hidden = " procal_hidden";
-                }
+/*
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( date($jscal_ifformat, $datetime_end) ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
+*/
+                $hidden = ($onedate ? ' procal_hidden' : '');
 ?>
+                <span class="clearfix"></span>
                 <div class="field_line rec_enddate<?php echo $hidden; ?>">
-                    <div class="field_title"><?php echo $CALTEXT['TO']; ?></div>
-    <?php if ($onedate) { ?>
-                        <input name="date2" id="date2" class="date-pick" value="<?php echo date($jscal_ifformat, $datetime_end); ?>"/>
-        <?php if ($use_time) { ?>
-                        &nbsp; &nbsp; <input type="text" id="end_time" name="time_end" value="<?php print substr($tmp['time_end'], 0, 5); ?>" style="width:50px;" />
-        <?php } ?>
-    <?php } ?>
-                    <span class="rec_rep_select procal_hidden">
-                    <?php if ($onedate) { echo "&nbsp; &nbsp"; } ?>
+          <?php if (!$onedate) { ?>
+                    <label class="field_title"><?php echo $CALTEXT['UNTIL']; ?></label>
+                    <input type="text" name="date2" id="date2" class="date-pick" value="<?php echo date($jscal_ifformat, $datetime_end); ?>"/>
+              <?php if ($use_time) { ?>
+                    <input type="text" id="end_time" name="time_end" value="<?php echo substr($tmp['time_end'], 0, 5); ?>" style="width: 50px;" />
+              <?php } ?>
+          <?php } ?>
+                    <span class="clearfix"></span>
+                    <div class="field_line rec_rep_select procal_hidden">
+                        <div class="field_title"><label><?php echo $CALTEXT['TO']; ?></label></div>
                         <input id="rec_rep_count" class="rec_rep_count" type="text" name="rec_rep_count" <?php echo $rec_rep_count; ?> size="3" maxlength="3"/>
-        <?php echo $CALTEXT['DATES']; ?>
-                        <input id="rec_never" type="checkbox" <?php echo $rec_rep_count_checked; ?> name="rec_never" value="1"/><label for="rec_never"><?php echo $CALTEXT['NEVER']; ?></label></span>
+                        <label><?php echo $CALTEXT['DATES']; ?></label>
+                        <input id="rec_never" type="checkbox" <?php echo $rec_rep_count_checked; ?> name="rec_never" value="1"/><label for="rec_never"><?php echo $CALTEXT['NEVER']; ?></label>
+                    </div>
                 </div>
                 <span class="clearfix"></span>
                 <div class="field_line">
-                    <div class="field_title"><?php echo $CALTEXT['NAME']; ?></div>
+                    <label class="field_title"><?php echo $CALTEXT['NAME']; ?></label>
                     <input class="edit_field date_title" name="name" type="text" value="<?php
                            if ($tmp) {
                                echo $tmp['name'];
@@ -1697,23 +1921,25 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                            }
 ?>" />
                 </div>
-                <span class="clearfix"></span>
 <?php // -- Added by PCWacht insertion custom fields
                 if ($usecustom1 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom1); ?></div>
+                        <label class="field_title"><?php echo trim($custom1); ?></label>
                         <input type="text" name="custom1" class="edit_field" value="<?php if ($tmp) {echo $tmp['custom1'];}?>" />
                     </div>
 <?php }
                 if ($usecustom1 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom1); ?></div>
+                        <label class="field_title"><?php echo trim($custom1); ?></label>
                         <div class="field_area" >
                             <textarea name="custom1" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom1']; ?></textarea>
                         </div>
                     </div>
+                <span class="clearfix"></span>
 <?php
         }
         if ($usecustom1 == 3) {
@@ -1724,20 +1950,23 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
         }
         if ($usecustom2 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom2); ?></div>
+                        <label class="field_title"><?php echo trim($custom2); ?></label>
                         <input type="text" name="custom2" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom2']; } ?>" />
                     </div>
 <?php
                 }
                 if ($usecustom2 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom2); ?></div>
+                        <label class="field_title"><?php echo trim($custom2); ?></label>
                         <div class="field_area" >
                             <textarea name="custom2" rows="5" cols="1" class="edit_field"><?php echo $tmp['custom2']; ?></textarea>
                         </div>
                     </div>
+                <span class="clearfix"></span>
 <?php
                 }
                 if ($usecustom2 == 3) {
@@ -1748,23 +1977,25 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 }
                 if ($usecustom3 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom3); ?></div>
+                        <label class="field_title"><?php echo trim($custom3); ?></label>
                         <input type="text" name="custom3" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom3']; } ?>" />
                     </div>
 <?php }
                         if ($usecustom3 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom3); ?></div>
+                        <label class="field_title"><?php echo trim($custom3); ?></label>
                         <div class="field_area" >
                             <textarea name="custom3" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom3']; ?></textarea>
                         </div>
                     </div>
+                <span class="clearfix"></span>
 <?php
         }
         if ($usecustom3 == 3) {
-
             echo select_wblink($custom3, 'custom3', $tmp['custom3'], $CALTEXT['CUSTOM_SELECT_WBLINK']);
         }
         if ($usecustom3 == 4) {
@@ -1773,14 +2004,15 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
         if ($usecustom4 == 1) {
 ?>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom4); ?></div>
+                        <label class="field_title"><?php echo trim($custom4); ?></label>
                         <input type="text" name="custom4" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom4']; } ?>"/>
                     </div>
 <?php }
                 if ($usecustom4 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom4); ?></div>
+                        <label class="field_title"><?php echo trim($custom4); ?></label>
                         <div class="field_area" >
                             <textarea name="custom4" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom4']; ?></textarea>
                         </div>
@@ -1788,7 +2020,6 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 <?php
                 }
                 if ($usecustom4 == 3) {
-
                     echo select_wblink($custom4, 'custom4', $tmp['custom4'], $CALTEXT['CUSTOM_SELECT_WBLINK']);
                 }
                 if ($usecustom4 == 4) {
@@ -1796,15 +2027,17 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 }
                 if ($usecustom5 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom5); ?></div>
+                        <label class="field_title"><?php echo trim($custom5); ?></label>
                         <input type="text" name="custom5" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom5']; } ?>" />
                     </div>
 <?php }
         if ($usecustom5 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom5); ?></div>
+                        <label class="field_title"><?php echo trim($custom5); ?></label>
                         <div class="field_area" >
                             <textarea name="custom5" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom5']; ?></textarea>
                         </div>
@@ -1819,19 +2052,22 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 }
                 if ($usecustom6 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom6); ?></div>
+                        <label class="field_title"><?php echo trim($custom6); ?></label>
                         <input type="text" name="custom6" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom6']; } ?>" />
                     </div>
+                <span class="clearfix"></span>
 <?php }
                 if ($usecustom6 == 2) {
 ?>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom6); ?></div>
+                        <label class="field_title"><?php echo trim($custom6); ?></label>
                         <div class="field_area" >
                             <textarea name="custom6" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom6']; ?></textarea>
                         </div>
                     </div>
+                <span class="clearfix"></span>
 <?php
                 }
                 if ($usecustom6 == 3) {
@@ -1842,15 +2078,17 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 }
                 if ($usecustom7 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom7); ?></div>
+                        <label class="field_title"><?php echo trim($custom7); ?></label>
                         <input type="text" name="custom7" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom7']; } ?>" />
                     </div>
 <?php }
                 if ($usecustom7 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom7); ?></div>
+                        <label class="field_title"><?php echo trim($custom7); ?></label>
                         <div class="field_area" >
                             <textarea name="custom7" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom7']; ?></textarea>
                         </div>
@@ -1865,15 +2103,17 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 }
                 if ($usecustom8 == 1) {
 ?>
-                    <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom8); ?></div>
+                 <span class="clearfix"></span>
+                   <div class="field_line">
+                        <label class="field_title"><?php echo trim($custom8); ?></label>
                         <input type="text" name="custom8" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom8']; } ?>" />
                     </div>
 <?php }
                 if ($usecustom8 == 2) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom8); ?></div>
+                        <label class="field_title"><?php echo trim($custom8); ?></label>
                         <div class="field_area" >
                             <textarea name="custom8" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom8']; ?></textarea>
                         </div>
@@ -1888,15 +2128,17 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                         }
                         if ($usecustom9 == 1) {
 ?>
+                <span class="clearfix"></span>
                     <div class="field_line">
-                        <div class="field_title"><?php echo trim($custom9); ?></div>
+                        <label class="field_title"><?php echo trim($custom9); ?></label>
                         <input type="text" name="custom9" class="edit_field" value="<?php if ($tmp) { echo $tmp['custom9']; } ?>" />
                     </div>
 <?php }
                         if ($usecustom9 == 2) {
   ?>
+                    <span class="clearfix"></span>
                     <div class="field_link" >
-                        <div class="field_title"><?php echo trim($custom9); ?></div>
+                        <label class="field_title"><?php echo trim($custom9); ?></label>
                         <div class="field_area" >
                             <textarea name="custom9" rows="4" cols="1" class="edit_field"><?php echo $tmp['custom9']; ?></textarea>
                         </div>
@@ -1911,17 +2153,17 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                         }
                         // End addition PCWacht for custom fields!
 ?>
+                <span class="clearfix"></span>
                 <div class="field_line">
-                    <div class="field_title"><?php echo $CALTEXT['CATEGORY']; ?></div>
+                    <label class="field_title"><?php echo $CALTEXT['CATEGORY']; ?></label>
                     <select name="acttype" class="edit_select">
                         <option value="0"><?php echo $CALTEXT['NON-SPECIFIED']; ?></option>
 <?php
-                while (list($key, $value) = each($action_types)) {
-                    echo "<option value='$key'";
-                    if ($tmp['acttype'] == $key) {
-                       echo ' selected="selected"';
-                    }
-                    echo '>'.$value['name'].'</option>'.PHP_EOL;
+                foreach ($action_types as $key => $value){
+                    $selected = (($tmp['acttype'] == $key ) ? ' selected="selected"' : '');
+?>
+                        <option value="<?php echo $key;?>"<?php echo $selected;?>style="border-bottom: 1px solid <?php echo $value['format'];?>;" ><?php echo $value['name'];?></option>
+<?php
                 }
 ?>
                     </select>
@@ -1942,45 +2184,42 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
             }
         }
 ?>
+                <span class="clearfix"></span>
                 <div class="field_line">
-                    <div class="field_title"><?php echo $CALTEXT['VISIBLE']; ?></div>
+                    <label class="field_title"><?php echo $CALTEXT['VISIBLE']; ?></label>
                     <select name="public_stat" class="edit_select">
 <?php
-        while (list($key, $value) = each($public_stat)) {
+        foreach ($public_stat as $key => $value){
             // Ausblenden von "privat" in der Auswahl Sichtbarkeit
 //            if ($key == 1) { continue; }
-            echo "<option value='$key'";
-            if ($tmp['public_stat'] == $key || $tmp['public_stat'] == $key) {
-                echo ' selected="selected"';
-            }
-            echo ">$value</option>";
+            $selected = (($tmp['public_stat'] == $key || $tmp['public_stat'] == $key) ? ' selected="selected"' : '');
+?>
+                        <option value="<?php echo $key;?>"<?php echo $selected;?> ><?php echo $value;?></option>
+<?php
         }
 ?>
                     </select>
                 </div>
-                <div class="field_line">
-                    <span class="title"><?php echo $CALTEXT['DESCRIPTION']; ?></span>
+                <span class="clearfix"></span>
+                <div class="field_line" style="float: left; width: 20%; text-align: right;">
+                    <label class="title"><?php echo $CALTEXT['DESCRIPTION']; ?></label>
                 </div>
 
-                <div>
+                <div style="float: left; width: 80%;">
         <?php
             if (strlen($tmp['description']) > 0){
-                $sFilterApi = WB_PATH.'/modules/output_filter/OutputFilterApi.php';
-                if (is_readable($sFilterApi)) {
-                    require_once($sFilterApi);
-                    $tmp['description'] = OutputFilterApi('ReplaceSysvar', $tmp['description']);
-                }
+                $tmp['description'] = OutputFilterApi('ReplaceSysvar', $tmp['description']);
             }
-        show_wysiwyg_editor("short", "short", $tmp['description'], "99%", "400px"); ?>
+            show_wysiwyg_editor("short", "short", $tmp['description'], "99%", "250px"); ?>
                 </div>
     <?php }
 ?>
         </form>
-
-        <script type="text/javascript" charset="utf-8">
+    </div>
+        <script charset="utf-8">
             // Adding variables for datepicker - sent to backend_body.js:
             var MODULE_URL = WB_URL + '/modules/<?php echo basename(__DIR__);?>';
-            var firstDay   = <?php echo $jscal_firstday; ?>;      // Firstday, 0=sunday/1=monday
+            var firstDay   = '<?php echo $jscal_firstday; ?>';      // Firstday, 0=sunday/1=monday
             var format     = '<?php echo $jscal_format;  ?>';     // format of date, mm.dd.yyy etc
             var datestart  = '<?php echo date($jscal_ifformat, $datetime_start); ?>';    // datestart in input field
             var dateend    = '<?php echo date($jscal_ifformat, $datetime_end);   ?>';    // dateedn in inputfield
@@ -1995,7 +2234,6 @@ print_r( $text ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
                 echo 'var datelang     = "none"';
             }
 ?></script>
-    </div>
 
     <?php
     // End of function.

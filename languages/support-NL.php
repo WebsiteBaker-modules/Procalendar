@@ -1,43 +1,3 @@
-<?php
-
-/*
-
- Website Baker Project <http://www.websitebaker.org/>
- Copyright (C) 2004-2006, Ryan Djurovich
-
- Website Baker is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- Website Baker is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Website Baker; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-require('../../../config.php');
-
-// Include WB admin wrapper script
-require(WB_PATH.'/modules/admin.php');
-
-if (LANGUAGE_LOADED) {        // load languagepack
-  if(file_exists(WB_PATH."/modules/procalendar/languages/".LANGUAGE.".php")) {    // if exist proper language mutation
-    require_once(WB_PATH."/modules/procalendar/languages/".LANGUAGE.".php");    // load it
-  } else {
-    require_once(WB_PATH."/modules/procalendar/languages/EN.php");        // else use english
-  }
-}
-
-?>
-
-<div style="width:60%;">
-    <h2><?php echo $CALTEXT['SUPPORT_INFO']; ?></h2>
     <h3>&nbsp;</h3>
     <h3>Opties</h3>
   <p>De basisopties die u kunt kiezen voor een gebeurtenis zijn:
@@ -111,9 +71,4 @@ if (LANGUAGE_LOADED) {        // load languagepack
 <hr />
 <h3>Wijzig CSS</h3>
 <p>Zoals veel andere  WB-modules, biedt ProCalendar de gelegenheid om de  stylesheets voor het beheer en de website (&quot;backend&quot; en &quot;frontend&quot;) aan te passen. Zorg er wel voor dat de  CSS-bestanden de juiste schrijfrechten hebben, anders worden de veranderingen niet opgeslagen. U krijgt overigens wel een foutmelding als dit het geval is.</p>
-</div>
-<br />
-<input type="button" class="edit_button" value="<?php echo $CALTEXT['BACK']; ?>" onclick="javascript: window.location = '<?php echo WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&amp;section_id=$section_id"; ?>';" />
-<?php
-$admin->print_footer();
-?>
+

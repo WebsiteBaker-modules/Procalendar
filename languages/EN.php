@@ -49,7 +49,8 @@ $CALTEXT['DEADLINE'] = "End";
 $CALTEXT['DELETE'] = "Delete";
 $CALTEXT['DESCRIPTION'] = "Description";
 $CALTEXT['NO_DESCRIPTION'] = "No description available...";
-$CALTEXT['FROM'] = "Start";
+$CALTEXT['FROM'] = "From";
+$CALTEXT['UNTIL'] = "Until";
 $CALTEXT['NEW-EVENT'] = "New event";
 $CALTEXT['NEW'] = "New";
 $CALTEXT['NON-SPECIFIED'] = "N/A";
@@ -105,4 +106,3 @@ $CALTEXT['NEVER'] = "never";
 $CALTEXT['ISREC_MESSAGE'] = "This date is part of a date series. /n&quot;OK&quot; - for editing the whole series. /n &quot;Cancel&quot; - for overwriting date or creating a new one.";
 $CALTEXT['REC_OVERWRITE_MESSAGE'] = "This Date is part of a date series. \nIf you delete this date the original date of the series will become active again.";
 $CALTEXT['REC_OVERWRITE'] = "overwrite";
-?>

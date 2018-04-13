@@ -20,36 +20,35 @@
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-
-require('../../config.php');
-
+if (!defined('SYSTEM_RUN')) {require( (dirname(dirname((__DIR__)))).'/config.php');}
 
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
+if (!function_exists('isProcalcFuncLoaded')){require(__DIR__.'/functions.php');}
+/*
+$page_id      = (int)$admin->get_post('page_id');
+$section_id   = (int)$admin->get_post('section_id');
+*/
+  $type      = $admin->get_post('type');
+  $sBackLink = WB_URL.'/modules/procalendar/modify_settings.php?page_id='.$page_id.'&section_id='.$section_id.'';
 
-$page_id      = $admin->get_post('page_id');
-$section_id   = $admin->get_post('section_id');
-$type          = $admin->get_post('type');
+  $header       = $admin->StripCodeFromText($admin->get_post('header'));
+  $footer       = $admin->StripCodeFromText($admin->get_post('footer'));
+  $posttempl    = $admin->StripCodeFromText($admin->get_post('posttempl'));
 
-$header         = $admin->get_post_escaped('header');
-$footer          = $admin->get_post_escaped('footer');
-$posttempl      = $admin->get_post_escaped('posttempl');
+  $sql  = 'UPDATE `'.TABLE_PREFIX.'mod_procalendar_settings` SET '
+        . '`header` = \''.$database->escapeString($header).'\', '
+        . '`footer` = \''.$database->escapeString($footer).'\', '
+        . '`posttempl` = \''.$database->escapeString($posttempl).'\' '
+        . 'WHERE `section_id` = '.(int)$section_id.' '
+        . '';
+    if ($database->query($sql)) {
+        $admin->print_success($TEXT['SUCCESS'], $sBackLink);
+    }
 
-
-$sql = "UPDATE ";
-$sql .= TABLE_PREFIX."mod_procalendar_settings SET "; // create rest of the sql-query
-$sql .= "header='$header', ";
-$sql .= "footer='$footer', ";
-$sql .= "posttempl='$posttempl' ";
-$sql .= " WHERE section_id=$section_id";
-     
-$database->query($sql);
-
-if($database->is_error()) {
-  $admin->print_error($database->get_error(), WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&section_id=$section_id");
-} else {
-  $admin->print_success($TEXT['SUCCESS'], WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&section_id=$section_id");
-}
+  if($database->is_error()) {
+      $admin->print_error($database->get_error(), $sBackLink);
+  }
 
 $admin->print_footer();
 

@@ -50,6 +50,7 @@ $CALTEXT['DELETE'] = "Löschen";
 $CALTEXT['DESCRIPTION'] = "Beschreibung";
 $CALTEXT['NO_DESCRIPTION'] = "Keine Beschreibung verfügbar...";
 $CALTEXT['FROM'] = "Von";
+$CALTEXT['UNTIL'] = "Bis";
 $CALTEXT['NEW-EVENT'] = "Neuer Termin";
 $CALTEXT['NEW'] = "Neu";
 $CALTEXT['NON-SPECIFIED'] = "nichts hinterlegt";

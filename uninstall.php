@@ -23,12 +23,9 @@
 if (defined('WB_URL')) {
 
     // create tables from sql dump file
-    if (is_readable(__DIR__.'/install-struct.sql')) {
-        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
+    if (is_readable(__DIR__.'/install-struct.php')) {
+        $database->SqlImport(__DIR__.'/install-struct.php', TABLE_PREFIX, __FILE__ );
     }
-
-    // Make calendar images directory
-    make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');
 }
 
 /*

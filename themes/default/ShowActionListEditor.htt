@@ -1,0 +1,31 @@
+<!-- BEGIN main_block -->
+    <div class="actionlist">
+        <h2>{HeaderText}</h2>
+        <table class="actionlist_table w3-table w3-table-all">
+            <thead class="w3-header-blue-wb">
+            <tr class="actionlist_header">
+                <th>{CALTEXT_DATE}</th>
+                <th>{CALTEXT_NAME}</th>
+                <th>{CALTEXT_CATEGORY}</th>
+            </tr>
+            </thead>
+            <tbody>
+
+     <!-- BEGIN MarkDayOk_list_block -->
+                <tr>
+                    <td class="actionlist_date" style="width: 18%; vertical-align: top;" >
+                        </td>
+                        <td style="vertical-align: top;">
+                        <a href="{link}&amp;id={tmp_id}">{tmp_name}</a>
+                        </td>
+                        <td class="actionlist_type" style="vertical-align: top; width: 25%;">
+                            {action_types}
+                        </td>
+                    </tr>
+     <!-- END MarkDayOk_list_block -->
+
+            </tbody>
+        </table>
+    </div>
+<!-- END main_block -->
+

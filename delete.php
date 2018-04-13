@@ -26,7 +26,6 @@ if (!defined('WB_PATH')) exit("Cannot access this file directly");
 
 
 $database->query("DELETE FROM ".TABLE_PREFIX."mod_procalendar_actions WHERE section_id = '$section_id'"); // remove relationed actions
-$database->query("DELETE FROM ".TABLE_PREFIX."mod_procalendar_settings WHERE section_id = '$section_id'");  // remove 
-$database->query("DELETE FROM ".TABLE_PREFIX."mod_procalendar_eventgroups WHERE section_id = '$section_id'");  // remove 
+$database->query("DELETE FROM ".TABLE_PREFIX."mod_procalendar_settings WHERE section_id = '$section_id'");  // remove
+$database->query("DELETE FROM ".TABLE_PREFIX."mod_procalendar_eventgroups WHERE section_id = '$section_id'");  // remove
 
-?>
