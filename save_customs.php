@@ -21,84 +21,85 @@
 
 */
 
-require (dirname(dirname(__DIR__ )).'/config.php');
+require('../../config.php');
+
 
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
-/**
 
- * $page_id      = $admin->get_post('page_id');
- * $section_id   = $admin->get_post('section_id');
- */
-$sBackLink = WB_URL.'/modules/'.basename(__DIR__).'/modify_settings.php?page_id='.(int)$page_id.'&amp;section_id='.(int)$section_id;
+$page_id      = $admin->get_post('page_id');
+$section_id   = $admin->get_post('section_id');
 
-$usecustom1           = ($admin->get_post('usecustom1'));
-$custom1              = trim($admin->get_post('custom1'));
-$customtemplate1      = ($admin->get_post('customtemplate1'));
-$usecustom2           = ($admin->get_post('usecustom2'));
-$custom2              = trim($admin->get_post('custom2')).'';
-$customtemplate2      = $admin->get_post('customtemplate2');
-$usecustom3           = $admin->get_post('usecustom3');
-$custom3              = trim($admin->get_post('custom3')).'';
-$customtemplate3      = $admin->get_post('customtemplate3');
-$usecustom4           = ($admin->get_post('usecustom4'));
-$custom4              = trim($admin->get_post('custom4')).'';
-$customtemplate4      = $admin->get_post('customtemplate4');
-$usecustom5           = ($admin->get_post('usecustom5'));
-$custom5              = trim($admin->get_post('custom5')).'';
-$customtemplate5      = $admin->get_post('customtemplate5');
-$usecustom6           = $admin->get_post('usecustom6');
-$custom6              = trim($admin->get_post('custom6')).'';
-$customtemplate6      = $admin->get_post('customtemplate6');
-$usecustom7           = $admin->get_post('usecustom7');
-$custom7              = trim($admin->get_post('custom7')).'';
-$customtemplate7      = $admin->get_post('customtemplate7');
-$usecustom8           = $admin->get_post('usecustom8');
-$custom8              = trim($admin->get_post('custom8')).'';
-$customtemplate8      = $admin->get_post('customtemplate8');
-$usecustom9           = $admin->get_post('usecustom9');
-$custom9              = trim($admin->get_post('custom9')).'';
-$customtemplate9      = $admin->get_post('customtemplate9');
-$resize               = $admin->get_post('resize');
+$usecustom1   		= $admin->get_post_escaped('usecustom1');
+$custom1      		= $admin->get_post_escaped('custom1');
+$customtemplate1	= $admin->get_post_escaped('customtemplate1');
+$usecustom2   		= $admin->get_post_escaped('usecustom2');
+$custom2      		= $admin->get_post_escaped('custom2').'&nbsp;';
+$customtemplate2	= $admin->get_post_escaped('customtemplate2');
+$usecustom3   		= $admin->get_post_escaped('usecustom3');
+$custom3      		= $admin->get_post_escaped('custom3').'&nbsp;';
+$customtemplate3	= $admin->get_post_escaped('customtemplate3');
+$usecustom4   		= $admin->get_post_escaped('usecustom4');
+$custom4      		= $admin->get_post_escaped('custom4').'&nbsp;';
+$customtemplate4	= $admin->get_post_escaped('customtemplate4');
+$usecustom5   		= $admin->get_post_escaped('usecustom5');
+$custom5      		= $admin->get_post_escaped('custom5').'&nbsp;';
+$customtemplate5	= $admin->get_post_escaped('customtemplate5');
+$usecustom6   		= $admin->get_post_escaped('usecustom6');
+$custom6      		= $admin->get_post_escaped('custom6').'&nbsp;';
+$customtemplate6	= $admin->get_post_escaped('customtemplate6');
+$usecustom7   		= $admin->get_post_escaped('usecustom7');
+$custom7      		= $admin->get_post_escaped('custom7').'&nbsp;';
+$customtemplate7	= $admin->get_post_escaped('customtemplate7');
+$usecustom8   		= $admin->get_post_escaped('usecustom8');
+$custom8      		= $admin->get_post_escaped('custom8').'&nbsp;';
+$customtemplate8	= $admin->get_post_escaped('customtemplate8');
+$usecustom9   		= $admin->get_post_escaped('usecustom9');
+$custom9      		= $admin->get_post_escaped('custom9').'&nbsp;';
+$customtemplate9	= $admin->get_post_escaped('customtemplate9');
+$resize      		= $admin->get_post_escaped('resize');
 
-    $sql  = ''
-          . 'UPDATE `'.TABLE_PREFIX.'mod_procalendar_settings` SET'
-          . '`usecustom1`=\''.$database->escapeString($usecustom1).'\','
-          . '`customtemplate1`=\''.$database->escapeString($customtemplate1).'\','
-          . '`custom1`=\''.$database->escapeString($custom1).'\','
-          . '`usecustom2`=\''.$database->escapeString($usecustom2).'\','
-          . '`customtemplate2`=\''.$database->escapeString($customtemplate2).'\','
-          . '`custom2`=\''.$database->escapeString($custom2).'\','
-          . '`usecustom3`=\''.$database->escapeString($usecustom3).'\','
-          . '`customtemplate3`=\''.$database->escapeString($customtemplate3).'\','
-          . '`custom3`=\''.$database->escapeString($custom3).'\','
-          . '`usecustom4`=\''.$database->escapeString($usecustom4).'\','
-          . '`customtemplate4`=\''.$database->escapeString($customtemplate4).'\','
-          . '`custom4`=\''.$database->escapeString($custom4).'\','
-          . '`usecustom5`=\''.$database->escapeString($usecustom5).'\','
-          . '`customtemplate5`=\''.$database->escapeString($customtemplate5).'\','
-          . '`custom5`=\''.$database->escapeString($custom5).'\','
-          . '`usecustom6`=\''.$database->escapeString($usecustom6).'\','
-          . '`customtemplate6`=\''.$database->escapeString($customtemplate6).'\','
-          . '`custom6`=\''.$database->escapeString($custom6).'\','
-          . '`usecustom7`=\''.$database->escapeString($usecustom7).'\','
-          . '`customtemplate7`=\''.$database->escapeString($customtemplate7).'\','
-          . '`custom7`=\''.$database->escapeString($custom7).'\','
-          . '`usecustom8`=\''.$database->escapeString($usecustom8).'\','
-          . '`customtemplate8`=\''.$database->escapeString($customtemplate8).'\','
-          . '`custom8`=\''.$database->escapeString($custom8).'\','
-          . '`usecustom9`=\''.$database->escapeString($usecustom9).'\','
-          . '`customtemplate9`=\''.$database->escapeString($customtemplate9).'\','
-          . '`custom9`=\''.$database->escapeString($custom9).'\','
-          . '`resize`=\''.$database->escapeString($resize).'\' '
-          . 'WHERE `section_id`='.(int)$section_id.'';
 
-if (!$database->query($sql)||$database->is_error())
-{
-  $admin->print_error($database->get_error(), $sBackLink);
+$sql = "UPDATE ";
+$sql .= TABLE_PREFIX."mod_procalendar_settings SET "; // create rest of the sql-query
+$sql .= "usecustom1='$usecustom1', ";
+$sql .= "customtemplate1='$customtemplate1', ";
+$sql .= "custom1='$custom1', ";
+$sql .= "usecustom2='$usecustom2', ";
+$sql .= "customtemplate2='$customtemplate2', ";
+$sql .= "custom2='$custom2', ";
+$sql .= "usecustom3='$usecustom3', ";
+$sql .= "customtemplate3='$customtemplate3', ";
+$sql .= "custom3='$custom3', ";
+$sql .= "usecustom4='$usecustom4', ";
+$sql .= "customtemplate4='$customtemplate4', ";
+$sql .= "custom4='$custom4', ";
+$sql .= "usecustom5='$usecustom5', ";
+$sql .= "customtemplate5='$customtemplate5', ";
+$sql .= "custom5='$custom5', ";
+$sql .= "usecustom6='$usecustom6', ";
+$sql .= "customtemplate6='$customtemplate6', ";
+$sql .= "custom6='$custom6', ";
+$sql .= "usecustom7='$usecustom7', ";
+$sql .= "customtemplate7='$customtemplate7', ";
+$sql .= "custom7='$custom7', ";
+$sql .= "usecustom8='$usecustom8', ";
+$sql .= "customtemplate8='$customtemplate8', ";
+$sql .= "custom8='$custom8', ";
+$sql .= "usecustom9='$usecustom9', ";
+$sql .= "customtemplate9='$customtemplate9', ";
+$sql .= "custom9='$custom9', "; 
+$sql .= "resize='$resize' ";        
+$sql .= " WHERE section_id=$section_id";
+     
+$database->query($sql);
+
+if($database->is_error()) {
+  $admin->print_error($database->get_error(), WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&section_id=$section_id");
 } else {
-  $admin->print_success($TEXT['SUCCESS'], $sBackLink);
+  $admin->print_success($TEXT['SUCCESS'], WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&section_id=$section_id");
 }
 
 $admin->print_footer();
 
+?>

@@ -19,21 +19,10 @@
  along with Website Baker; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
-*/
-
-$module_directory    = 'procalendar';
-$module_name         = 'ProCalendar v1.3.14';
-$module_function     = 'page';
-$module_version      = '1.3.14';
-$module_designed_for = '2.10.0';
-$module_author       = 'David Ilicz Klementa, Burkhard Hekers, Jurgen Nijhuis, John Maats';
-$module_license      = 'GNU General Public License';
-$module_description  = 'Event calendar, based on MyCalendar by Burkhard Hekers (that was based on Calendar Module from David Ilicz Klementa)';
-/*
-
-$module_home         = 'http://www.argosmedia.net/wb/pages/procalendar.php';
 changelog
+
+version 1.3.9 27.07.2018
+! fix: Countable() error message(s) on empty calendar
 
 version 1.3.8 xx.xx.2016
 + font color in eventlist depends on background color now (thx to gnom: http://forum.websitebaker.org/index.php/topic,28883.msg202558.html#msg202558)
@@ -52,7 +41,7 @@ version 1.3.5 26.09.2015
 ! show correct date on details view (reported bei Tomno339 at http://forum.websitebaker.org/index.php/topic,28423.msg200586.html#msg200586)
 
 version 1.3.4 01.07.2015
-! rec monthly events: no more missing dates on seies which last over more than one calendar year; first date can be at start date;
+! rec monthly events: no more missing dates on seies which last over more than one calendar year; first date can be at start date; 
   (thanks for reporting to Tomno399 @ http://forum.websitebaker.org/index.php/topic,28423.msg199017.html#msg199017)
 ! error in upgrade.php (reported and fixed by dbs http://forum.websitebaker.org/index.php/topic,27782.msg193372.html#msg193372)
 ! end time is no longer set for date series with fixed number of dates or infinite series (reported by dbs http://forum.websitebaker.org/index.php/topic,27782.msg193372.html#msg193372)
@@ -87,4 +76,15 @@ version 1.2 22.03.2012
 - deleted some $colcount stuff, isn't used as colcount counts rows and not columns (functions.php)
 + added color support for categories by using an adapted version of mColorPicker, thanks to meta100.com (new directory "images", fields "format" and "format_days" in eventgrups table)
 + added upgrade.php
+
 */
+
+$module_directory    = 'procalendar';
+$module_name         = 'ProCalendar';
+$module_function     = 'page';
+$module_version      = '1.3.9';
+$module_designed_for = '2.8';
+$module_author       = 'David Ilicz Klementa, Burkhard Hekers, Jurgen Nijhuis, John Maats';
+$module_license      = 'GNU General Public License';
+$module_description  = 'Event calendar, based on MyCalendar by Burkhard Hekers (that was based on Calendar Module from David Ilicz Klementa)';
+$module_home         = 'http://www.argosmedia.net/wb/pages/procalendar.php';

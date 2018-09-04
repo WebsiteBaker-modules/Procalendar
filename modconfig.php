@@ -1,5 +1,5 @@
 <?php
 
-DEFINE('TITLE_ADD_CALENDAR',       "");
+DEFINE('TITLE_ADD_CALENDAR',       "");     
 
 ?>

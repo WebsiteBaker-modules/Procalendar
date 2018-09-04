@@ -18,15 +18,15 @@
  You should have received a copy of the GNU General Public License
  along with Website Baker; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+ 
  Translation of the help page by Florian Meerwinck (instantflorian), meerwinck.com
 
 */
 
-//require('../../../config.php');
+require('../../../config.php');
 
 // Include WB admin wrapper script
-//require(WB_PATH.'/modules/admin.php');
+require(WB_PATH.'/modules/admin.php');
 
 if (LANGUAGE_LOADED) {        // load languagepack
   if(file_exists(WB_PATH."/modules/procalendar/languages/".LANGUAGE.".php")) {    // if exist proper language mutation
@@ -42,14 +42,14 @@ if (LANGUAGE_LOADED) {        // load languagepack
 <h3>Optionen</h3>
 <p>Folgende grundlegende Einstellungen k&ouml;nnen f&uuml;r einen Eintrag vorgenommen werden:</p>
 <ul>
-    <li>
-        <b>Startdatum:</b> Anfang des Events. Das kann auch die einzige Angabe sein, wenn es sich um einen Event handelt, der nur einen Tag dauert.</li>
-    <li>
-        <b>Name:</b> Der Name bzw. titel des Events.</li>
-    <li>
-        <b>Kategorie:</b> Die Kategorie bzw. der Typ des Events, z.B. Workshop, Training, Meeting, Konferenz... Bei den Optionen k&ouml;nnen beliebig viele Kategorien angelegt werden. Nachdem dies geschehen ist, stehen sie hier dann zur Auswahl.</li>
-    <li>
-        <b>Sichtbarkeit:</b> Events k&ouml;nnen entweder &ouml;ffentlich oder privat sein. &Ouml;ffentliche Events sehen alle Besucher der Seite. Private Events werden nur angemeldeten Besuchern angezeigt.</li>
+	<li>
+		<b>Startdatum:</b> Anfang des Events. Das kann auch die einzige Angabe sein, wenn es sich um einen Event handelt, der nur einen Tag dauert.</li>
+	<li>
+		<b>Name:</b> Der Name bzw. titel des Events.</li>
+	<li>
+		<b>Kategorie:</b> Die Kategorie bzw. der Typ des Events, z.B. Workshop, Training, Meeting, Konferenz... Bei den Optionen k&ouml;nnen beliebig viele Kategorien angelegt werden. Nachdem dies geschehen ist, stehen sie hier dann zur Auswahl.</li>
+	<li>
+		<b>Sichtbarkeit:</b> Events k&ouml;nnen entweder &ouml;ffentlich oder privat sein. &Ouml;ffentliche Events sehen alle Besucher der Seite. Private Events werden nur angemeldeten Besuchern angezeigt.</li>
 </ul>
 <p><b>Datum / Start- und Enddatum verwenden</b><br />Hier kann festgelegt werden, ob zu den Events nur ein Startdatum oder ein Start- und ein Enddatum angegeben werden soll. Wenn nur Ein-Tages-Events eingetragen werden soll, ist logischerweise kein Enddatum erforderlich, wenn Events hingegen &uuml;ber mehrere Tage stattfinden, ist die Angabe eines Enddatums sinnvoll. Auch wenn ausgew&auml;hlt wurde, Start- und Enddatum zu verwenden, kann trotzdem auch nur ein Startdatum angegeben werden, das dann leere Feld f&uuml;r das Enddatum wird auf der Website nicht angezeigt.</p>
 <p><i>Tipp:</i> Am besten f&uuml;r die Datumsangabe den eingebauten Date Picker verwenden, um zu verhindern, dass versehentlich ung&uuml;ltige Enddatumsangabn (Enddatum vor Startdatum) gemacht werden.</p>
@@ -58,14 +58,14 @@ if (LANGUAGE_LOADED) {        // load languagepack
 <h3>Eigene Felder</h3>
 <p>Esk&ouml;nnen bis zu 9 zus&auml;tzliche Eingabefelder f&uuml;r Eventdetails definiert werden. Diese &quot;Eigenen Felder&quot; werden dann angezeigt, wenn ein neuer Event angelegt wird. Die jeweiligen Eingaben werden in der im Backend festgelegten Form im Frontend angezeigt. Es stehen die folgenden feldtypen zur Verf&uuml;gun:</p>
 <ul>
-    <li>
-        <b>Textfeld: </b>einzeiliges Eingabefeld (kurze Texte oder einzelne S&auml;tze)</li>
-    <li>
-        <b>Textarea: </b>Langtext (mehrere S&auml;tze)</li>
-    <li>
-        <b>WB Link:</b> Link zu einer anderen Seite auf derselben Website.</li>
-    <li>
-        <b>Bild:</b> Bild, das entweder hier hochgeladen oder in der Medienverwaltung ausgew&auml;hlt wird. Das Bild kann automatisch auf eine bestimmte Gr&ouml;&szlig;e verkleinert werden; diese Gr&ouml;&szlig;e wird ganz oben auf der Eigene-Felder-Seite festgelegt.</li>
+	<li>
+		<b>Textfeld: </b>einzeiliges Eingabefeld (kurze Texte oder einzelne S&auml;tze)</li>
+	<li>
+		<b>Textarea: </b>Langtext (mehrere S&auml;tze)</li>
+	<li>
+		<b>WB Link:</b> Link zu einer anderen Seite auf derselben Website.</li>
+	<li>
+		<b>Bild:</b> Bild, das entweder hier hochgeladen oder in der Medienverwaltung ausgew&auml;hlt wird. Das Bild kann automatisch auf eine bestimmte Gr&ouml;&szlig;e verkleinert werden; diese Gr&ouml;&szlig;e wird ganz oben auf der Eigene-Felder-Seite festgelegt.</li>
 </ul>
 <p>Es k&ouml;nnen beliebig viele der 9 Felder verwendet werden, indem der Feldtyp ausgew&auml;hlt und die Ausgabe im Feld-Template festgelegt wird. Dabei werden nur die Eingabefelder angezeigt, die auch aktiviert werden (also nicht auf &quot;Nicht benutzt&quot; stehen). Feldbezeichnung und Feld-Template k&ouml;nnen beliebig festgelegt werden.</p>
 <p>Die Standard-Feldtemplate sind:</p>

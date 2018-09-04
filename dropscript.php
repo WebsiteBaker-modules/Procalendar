@@ -24,9 +24,9 @@
 function years(){
   $i=date('Y');
   $end=$i+10;
-  while ($i <= $end) {
+  while ($i <= $end) { 
     echo"<option value=\"$i\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
@@ -35,77 +35,78 @@ function years_preselect(){
   echo"<option selected value=\"$i\">$i</option>";
   $i++;
   $end=$i+10;
-  while ($i <= $end) {
+  while ($i <= $end) { 
     echo"<option value=\"$i\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
 function days(){
   $i=1;
-  while ($i <= 31) {
+  while ($i <= 31) { 
     echo'<option value="';
     printf("%002s",  $i);
     echo"\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
 function days_preselect(){
   $i=1;
   $m=date('d');
-  while ($i <= 31) {
+  while ($i <= 31) { 
     if($i == $m)
       echo'<option selected value="';
     else
       echo'<option value="';
     printf("%002s",  $i);
     echo"\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
 function months(){
   $i=1;
-  while ($i <= 12) {
+  while ($i <= 12) { 
     echo'<option value="';
     printf("%002s",  $i);
     echo"\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
 function months_preselect(){
   $i=1;
   $m=date('m');
-  while ($i <= 12) {
+  while ($i <= 12) { 
     if($i == $m)
       echo'<option selected value="';
     else
       echo'<option value="';
     printf("%002s",  $i);
     echo"\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
 function hours(){
   $i=0;
-  while ($i <= 23) {
+  while ($i <= 23) { 
     echo'<option value="';
     printf("%002s",  $i);
     echo"\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
 function minutes(){
   $i=0;
-  while ($i <= 59) {
+  while ($i <= 59) { 
     echo'<option value="';
     printf("%002s",  $i);
     echo"\">$i</option>";
-    $i++;
+    $i++; 
   }
 }
 
+?>

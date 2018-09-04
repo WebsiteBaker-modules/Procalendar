@@ -21,19 +21,96 @@
 
 */
 
+
 if (defined('WB_URL')) {
+  
+  $database->query("DROP TABLE IF EXISTS ".TABLE_PREFIX."mod_procalendar_settings");
+  $database->query("DROP TABLE IF EXISTS ".TABLE_PREFIX."mod_procalendar_actions");
+	$database->query("DROP TABLE IF EXISTS ".TABLE_PREFIX."mod_procalendar_eventgroups");
 
-    // create tables from sql dump file
-    if (is_readable(__DIR__.'/install-struct.sql')) {
-        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
-    }
+  $database->query("CREATE TABLE ".TABLE_PREFIX."mod_procalendar_settings (
+      section_id INT NOT NULL,
+      page_id INT NOT NULL,
+      settings TEXT,
+      startday INT default '0',
+      onedate INT default '0',
+      usetime INT default '0',
+      useformat VARCHAR(15) NOT NULL,
+      useifformat VARCHAR(15) NOT NULL,
+      usecustom1 INT default '0',
+      custom1 TEXT NOT NULL,
+      customtemplate1 TEXT,
+      usecustom2 INT default '0',
+      custom2 TEXT NOT NULL,
+      customtemplate2 TEXT,
+      usecustom3 INT default '0',
+      custom3 TEXT NOT NULL,
+      customtemplate3 TEXT,
+      usecustom4 INT default '0',
+      custom4 TEXT NOT NULL,
+      customtemplate4 TEXT,
+      usecustom5 INT default '0',
+      custom5 TEXT NOT NULL,
+      customtemplate5 TEXT,
+      usecustom6 INT default '0',
+      custom6 TEXT NOT NULL,
+      customtemplate6 TEXT,
+      usecustom7 INT default '0',
+      custom7 TEXT NOT NULL,
+      customtemplate7 TEXT,
+      usecustom8 INT default '0',
+      custom8 TEXT NOT NULL,
+      customtemplate8 TEXT,
+      usecustom9 INT default '0',
+      custom9 TEXT NOT NULL,
+      customtemplate9 TEXT,
+      resize INT default '0',
+      header TEXT NOT NULL,
+      footer TEXT NOT NULL,
+      posttempl TEXT NOT NULL,
+      PRIMARY KEY (section_id))");
+  
+  $database->query("CREATE TABLE ".TABLE_PREFIX."mod_procalendar_actions (
+      id INT NOT NULL AUTO_INCREMENT,
+      section_id INT NOT NULL,
+      page_id INT NOT NULL,
+      owner INT NOT NULL,
+      date_start DATE NOT NULL,
+      time_start TIME default NULL,
+      date_end DATE default NULL,
+      time_end TIME default NULL,
+      acttype TINYINT(4) NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      description TEXT default NULL,
+      custom1 TEXT default NULL,
+      custom2 TEXT default NULL,
+      custom3 TEXT default NULL,
+      custom4 TEXT default NULL,
+      custom5 TEXT default NULL,
+      custom6 TEXT default NULL,
+      custom7 TEXT default NULL,
+      custom8 TEXT default NULL,
+      custom9 TEXT default NULL,
+      public_stat TINYINT(4) NOT NULL default '0',
+      rec_id INT NOT NULL default '0',
+      rec_day VARCHAR(255) NOT NULL,
+      rec_week VARCHAR(255) NOT NULL,
+      rec_month VARCHAR(255) NOT NULL,
+      rec_year VARCHAR(255) NOT NULL,
+      rec_count SMALLINT NOT NULL default '0',
+      rec_exclude VARCHAR(255) NOT NULL,
+      PRIMARY KEY (id))");
 
-    // Make calendar images directory
-    if (!is_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/')){ make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');}
-}
-
-/*
-    // Insert info into the search table
+	$database->query("CREATE TABLE ".TABLE_PREFIX."mod_procalendar_eventgroups (
+      id INT NOT NULL AUTO_INCREMENT,
+      section_id INT NOT NULL,
+      name VARCHAR(255) NOT NULL default '',
+      format VARCHAR(255) NOT NULL default '',
+      format_days INT NOT NULL default '0',
+      PRIMARY KEY (id))");
+			 
+        
+	// Insert info into the search table
   // Module query info
   $field_info = array();
   $field_info['page_id'] = 'page_id';
@@ -53,10 +130,16 @@ if (defined('WB_URL')) {
   OR [TP]pages.page_id = [TP]mod_procalendar_actions.page_id AND [TP]mod_procalendar_actions.description LIKE \'%[STRING]%\'";
   $database->query("INSERT INTO ".TABLE_PREFIX."search (name,value,extra) VALUES ('query_body', '$query_body_code', 'procalendar')");
   // Query end
-  $query_end_code = "";
+  $query_end_code = ""; 
   $database->query("INSERT INTO ".TABLE_PREFIX."search (name,value,extra) VALUES ('query_end', '$query_end_code', 'procalendar')");
-
+  
   // Insert blank row (there needs to be at least on row for the search to work)
   $database->query("INSERT INTO ".TABLE_PREFIX."mod_procalendar_actions (page_id,section_id) VALUES ('0','0')");
-*/
+  
+  // Make calendar images directory
+  make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');  
+}
 
+
+
+?>

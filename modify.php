@@ -23,38 +23,34 @@
 
 if (!defined('WB_PATH')) exit("Cannot access this file directly");
 
-require_once(WB_PATH.'/framework/functions.php');
-require_once(__DIR__.'/functions.php');
-$year  = date("o");
-$month = date("n");
-$day   = date("j");
 
-/*
+require_once(WB_PATH.'/framework/functions.php');
+require_once('functions.php');
+
 $month=date("n");
 $year=date("Y");
 $day=date("j");
-*/
 // $day = "";
 if ((isset($_GET['day']))and($_GET['day']!="")) {
-    $day = $_GET['day'];
+  $day = $_GET['day'];
 }
 
 if (isset($_GET['edit'])) {
-    $editMode = $_GET['edit'];
-} else {
-    $editMode = "no";
+  $editMode = $_GET['edit'];
+  } else {
+  $editMode = "no";
 }
 if (isset($_GET['dayview'])) {
-    $dayview = (int)$_GET['dayview'];
+  $dayview = (int)$_GET['dayview'];
 } else {
-    $dayview = (int)0;
+  $dayview = (int)0;
 }
 if ((isset($_GET['month']))and($_GET['month']!="")) {
-    $month = (int)$_GET['month'];
-}
+  $month = (int)$_GET['month'];
+} 
 if ((isset($_GET['year']))and((int)$_GET['year']!="-")) {
   $year = (int)$_GET['year'];
-}
+} 
 if (isset($_GET['show'])) {
   $show = (int)$_GET['show'];
 } else {
@@ -65,24 +61,19 @@ if (isset($_GET['id'])) {
 } else {
   $edit_id = 0;
 }
-    // Make calendar images directory
-    if (!is_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/')){ make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');}
 
-$tm_start = "$year-$month-1";
-$tm_end = "$year-$month-".DaysCount($month,$year);
-$actions = fillActionArray($tm_start, $tm_end, $section_id);
 
+$tm_zacatek = "$year-$month-1";
+$tm_konec = "$year-$month-".DaysCount($month,$year);
+$actions = fillActionArray($tm_zacatek, $tm_konec, $section_id);
 $action_types = fillActionTypes($section_id);
-
-$IsBackend = ((isset($admin) || ($admin instanceof admin))?true:false); // change Luisehahne
 
 // For some php reason this must be here and not in the functions file where it was.
 // If in functions the ckeditor will error with array_key_exists() expects parameter 2 to be array, null given in .../modules/ckeditor/include.php on line 182
 // It seems like global doesn't work from a included function.
-/*
-*/
-  if (!isset($wysiwyg_editor_loaded)) {
-    $wysiwyg_editor_loaded=true;
+
+  if(!isset($wysiwyg_editor_loaded)) {
+    $wysiwyg_editor_loaded=true;  
     if (!defined('WYSIWYG_EDITOR') OR WYSIWYG_EDITOR=="none" OR !file_exists(WB_PATH.'/modules/'.WYSIWYG_EDITOR.'/include.php')) {
       function show_wysiwyg_editor($name,$id,$content,$width,$height) {
         echo '<textarea name="'.$name.'" id="'.$id.'" style="width: '.$width.'; height: '.$height.';">'.$content.'</textarea>';
@@ -92,11 +83,12 @@ $IsBackend = ((isset($admin) || ($admin instanceof admin))?true:false); // chang
       require(WB_PATH.'/modules/'.WYSIWYG_EDITOR.'/include.php');
     }
   }
-if (!function_exists('show_wysiwyg_editor')){require(WB_PATH.'/modules/'.WYSIWYG_EDITOR.'/include.php');}
-?><div class="procal modify_content">
-<?php
+?>
+
+<div class="modify_content">
+<?php 
   ShowCalendar($month, $year, $actions,$section_id,true);
-  ShowActionEditor($actions, $day, $show, $dayview, $editMode, $month, $year, $edit_id);
   ShowActionListEditor($actions, $day, $page_id, $dayview );
+  ShowActionEditor($actions, $day, $show, $dayview, $editMode, $month, $year, $edit_id); 
  ?>
 </div>

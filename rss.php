@@ -2,10 +2,10 @@
 
 // Check that GET values have been supplied
 if(isset($_GET['page_id']) AND is_numeric($_GET['page_id'])) {
-    $page_id = $_GET['page_id'];
+	$page_id = $_GET['page_id'];
 } else {
-    header('Location: /');
-    exit(0);
+	header('Location: /');
+	exit(0);
 }
 // Set defaults
 date_default_timezone_set('UTC');
@@ -31,9 +31,9 @@ $wb->get_website_settings();
 
 //checkout if a charset is defined otherwise use UTF-8
 if(defined('DEFAULT_CHARSET')) {
-    $charset=DEFAULT_CHARSET;
+	$charset=DEFAULT_CHARSET;
 } else {
-    $charset='utf-8';
+	$charset='utf-8';
 }
 
 // Get page link, needed for linkage
@@ -55,19 +55,19 @@ header("Content-type: text/xml; charset=$charset" );
 echo '<?xml version="1.0" encoding="'.$charset.'"?>';
 ?> 
 <rss version="2.0">
-    <channel>
-        <title><?php echo PAGE_TITLE; ?></title>
-        <link>http://<?php echo $_SERVER['SERVER_NAME']; ?></link>
-        <description> <?php echo PAGE_DESCRIPTION; ?></description>
+	<channel>
+		<title><?php echo PAGE_TITLE; ?></title>
+		<link>http://<?php echo $_SERVER['SERVER_NAME']; ?></link>
+		<description> <?php echo PAGE_DESCRIPTION; ?></description>
 <?php
 // Optional header info 
 ?>
-        <language><?php echo strtolower(DEFAULT_LANGUAGE); ?></language>
-        <copyright><?php $thedate = date('Y'); $websitetitle = WEBSITE_TITLE; echo "Copyright {$thedate}, {$websitetitle}"; ?></copyright>
-        <managingEditor><?php echo SERVER_EMAIL; ?></managingEditor>
-        <webMaster><?php echo SERVER_EMAIL; ?></webMaster>
-        <category><?php echo WEBSITE_TITLE; ?></category>
-        <generator>WebsiteBaker Content Management System</generator>
+		<language><?php echo strtolower(DEFAULT_LANGUAGE); ?></language>
+		<copyright><?php $thedate = date('Y'); $websitetitle = WEBSITE_TITLE; echo "Copyright {$thedate}, {$websitetitle}"; ?></copyright>
+		<managingEditor><?php echo SERVER_EMAIL; ?></managingEditor>
+		<webMaster><?php echo SERVER_EMAIL; ?></webMaster>
+		<category><?php echo WEBSITE_TITLE; ?></category>
+		<generator>WebsiteBaker Content Management System</generator>
 <?php
 // Get items from database
 
@@ -84,15 +84,15 @@ $result = $database->query($sql);
 
 //Generating the news items
 while($item = $result->fetchRow()){ 
-    // Build url like : pages/kalendar.php?id=2&detail=1    
-    $link = $page_link.'?id='.$item['id'].'&amp;detail=1';
-    ?>
-        <item>
-            <title><![CDATA[<?php echo $item["date_start"]." - ".stripslashes($item["name"]); ?>]]></title>
-            <description><![CDATA[<?php echo stripslashes($item["description"]); ?>]]></description>
-            <guid><?php echo $link; ?></guid>
-            <link><?php echo $link; ?></link>
-        </item>
+	// Build url like : pages/kalendar.php?id=2&detail=1    
+	$link = $page_link.'?id='.$item['id'].'&amp;detail=1';
+	?>
+		<item>
+			<title><![CDATA[<?php echo $item["date_start"]." - ".stripslashes($item["name"]); ?>]]></title>
+			<description><![CDATA[<?php echo stripslashes($item["description"]); ?>]]></description>
+			<guid><?php echo $link; ?></guid>
+			<link><?php echo $link; ?></link>
+		</item>
 <?php } ?>
-    </channel>
+	</channel>
 </rss>

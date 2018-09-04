@@ -42,7 +42,7 @@ function procalendar_search($func_vars) {
       SELECT *
       FROM $table
       WHERE section_id='$func_section_id'  
-          AND date_start <='$dateend' AND date_end >='$datestart' AND public_stat = 0
+	  	AND date_start <='$dateend' AND date_end >='$datestart' AND public_stat = 0
     ");
 
   $PageName = $func_page_title;
@@ -55,9 +55,9 @@ function procalendar_search($func_vars) {
       $text = "";
       
       $text .= $res['name'].$divider.$res['description'].$divider; // Default search: only the WYSIWYG-fields
-        //$text .= $res['name'].$divider.$res['description'].$divider.$res['custom1'].$divider.$res['custom2'].$divider.$res['custom3'].$divider; 
-      // Use the line above to add 1, 2 or 3 Custom fields to the search
-      
+		//$text .= $res['name'].$divider.$res['description'].$divider.$res['custom1'].$divider.$res['custom2'].$divider.$res['custom3'].$divider; 
+	  // Use the line above to add 1, 2 or 3 Custom fields to the search
+	  
       $func_page_title = $PageName.":<br/>".$res['name'];
       
       

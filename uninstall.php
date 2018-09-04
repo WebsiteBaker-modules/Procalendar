@@ -18,25 +18,16 @@
  You should have received a copy of the GNU General Public License
  along with Website Baker; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 */
 
-if (defined('WB_URL')) {
-
-    // create tables from sql dump file
-    if (is_readable(__DIR__.'/install-struct.sql')) {
-        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
-    }
-
-    // Make calendar images directory
-    make_dir(WB_PATH.MEDIA_DIRECTORY.'/calendar/');
-}
-
-/*
 if (!defined('WB_PATH')) exit("Cannot access this file directly");
+
 
 $database->query("DELETE FROM ".TABLE_PREFIX."search WHERE name = 'module' AND value = 'mod_procalendar_settings'");
 $database->query("DELETE FROM ".TABLE_PREFIX."search WHERE extra = 'mod_procalendar_settings'");
 $database->query("DROP TABLE ".TABLE_PREFIX."mod_procalendar_settings");
 $database->query("DROP TABLE ".TABLE_PREFIX."mod_procalendar_actions");
 $database->query("DROP TABLE ".TABLE_PREFIX."mod_procalendar_eventgroups");
-*/
+
+?>

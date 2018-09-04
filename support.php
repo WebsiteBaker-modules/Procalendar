@@ -23,7 +23,6 @@
 
 require('../../config.php');
 
-$print_info_banner = true;
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
 
@@ -106,4 +105,4 @@ if (LANGUAGE_LOADED) {        // load languagepack
 <input type="button" class="edit_button" value="<?php echo $CALTEXT['BACK']; ?>" onclick="javascript: window.location = '<?php echo WB_URL."/modules/procalendar/modify_settings.php?page_id=$page_id&amp;section_id=$section_id"; ?>';" />
 <?php
 $admin->print_footer();
-
+?>

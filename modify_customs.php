@@ -22,7 +22,7 @@
 */
 
 require('../../config.php');
-$print_info_banner = true;
+
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
 
@@ -44,34 +44,34 @@ $db = $database->query($sql);
 
 if ($db->numRows() > 0) {
    while ($rec = $db->fetchRow()) {
-      $resize            = $rec["resize"];
-      $usecustom1        = $rec["usecustom1"];
-      $custom1            = $rec["custom1"];
-      $customtemplate1    = $rec["customtemplate1"];
-      $usecustom2        = $rec["usecustom2"];
-      $custom2            = $rec["custom2"];
-      $customtemplate2    = $rec["customtemplate2"];
-      $usecustom3        = $rec["usecustom3"];
-      $custom3            = $rec["custom3"];
-      $customtemplate3    = $rec["customtemplate3"];
-      $usecustom4        = $rec["usecustom4"];
-      $custom4            = $rec["custom4"];
-      $customtemplate4    = $rec["customtemplate4"];
-      $usecustom5        = $rec["usecustom5"];
-      $custom5            = $rec["custom5"];
-      $customtemplate5    = $rec["customtemplate5"];
-      $usecustom6        = $rec["usecustom6"];
-      $custom6            = $rec["custom6"];
-      $customtemplate6    = $rec["customtemplate6"];
-      $usecustom7        = $rec["usecustom7"];
-      $custom7            = $rec["custom7"];
-      $customtemplate7    = $rec["customtemplate7"];
-      $usecustom8        = $rec["usecustom8"];
-      $custom8            = $rec["custom8"];
-      $customtemplate8    = $rec["customtemplate8"];
-      $usecustom9        = $rec["usecustom9"];
-      $custom9            = $rec["custom9"];
-      $customtemplate9    = $rec["customtemplate9"];
+      $resize			= $rec["resize"];
+	  $usecustom1		= $rec["usecustom1"];
+      $custom1			= $rec["custom1"];
+      $customtemplate1	= $rec["customtemplate1"];
+      $usecustom2		= $rec["usecustom2"];
+      $custom2			= $rec["custom2"];
+      $customtemplate2	= $rec["customtemplate2"];
+      $usecustom3		= $rec["usecustom3"];
+      $custom3			= $rec["custom3"];
+      $customtemplate3	= $rec["customtemplate3"];
+      $usecustom4		= $rec["usecustom4"];
+      $custom4			= $rec["custom4"];
+      $customtemplate4	= $rec["customtemplate4"];
+      $usecustom5		= $rec["usecustom5"];
+      $custom5			= $rec["custom5"];
+      $customtemplate5	= $rec["customtemplate5"];
+      $usecustom6		= $rec["usecustom6"];
+      $custom6			= $rec["custom6"];
+      $customtemplate6	= $rec["customtemplate6"];
+      $usecustom7		= $rec["usecustom7"];
+      $custom7			= $rec["custom7"];
+      $customtemplate7	= $rec["customtemplate7"];
+      $usecustom8		= $rec["usecustom8"];
+      $custom8			= $rec["custom8"];
+      $customtemplate8	= $rec["customtemplate8"];
+      $usecustom9		= $rec["usecustom9"];
+      $custom9			= $rec["custom9"];
+      $customtemplate9	= $rec["customtemplate9"];
 
    }
 }
@@ -90,7 +90,7 @@ $CTypes['4'] = $CALTEXT['CUSTOM_OPTIONS-4'];
   <table cellpadding="2" cellspacing="1" border="0" width="98%" class="customfields">
     <tr>
       <td valign="top" colspan="3">
-          <h2><?php echo $CALTEXT['RESIZE_IMAGES']; ?></h2>
+      	<h2><?php echo $CALTEXT['RESIZE_IMAGES']; ?></h2>
       </td>
     </tr>
    
@@ -121,7 +121,7 @@ $CTypes['4'] = $CALTEXT['CUSTOM_OPTIONS-4'];
     <?php } ?>   
     <tr>
       <td valign="top" colspan="3">
-          <br /><h2><?php echo $CALTEXT['CUSTOMS']; ?></h2>
+      	<br /><h2><?php echo $CALTEXT['CUSTOMS']; ?></h2>
       </td>
     </tr> 
     <tr>

@@ -11,7 +11,7 @@ td.calendar_weekday {background:#01457f;width:14%;color:#fff;}
 td.calendar_markday {background:#eee;font-weight:bold;}
 td.calendar_markday:hover {background:#ddd;}
 td.calendar_noday {background:#fff;} 
-td.procal_today {border:2px solid #ff7600;} /*ori ff0000;}*/ 
+td.procal_today {border:2px solid #ff0000;} 
 
 .event_details {min-height:350px;}
 
@@ -59,9 +59,3 @@ table.inner {border-collapse:collapse;}
 table.inner td {border:1px solid #ccc;padding:2px;}
 table.inner .event {color:#01457f;font-weight:bold;}
 table.inner .event:hover {font-weight:bold;cursor:pointer;color:#f47325;}
-
-/* Anpassung an die Anzeige für EFG MG von Harald Spring */
-.event_details {font-size:80%;}
-.eintrag_link {font-size:80%; text-align:right;}
-.info_block a {text-decoration:none;color:#ff7600 !important;}
-.info_block a:hover {color:#000 !important;}

@@ -25,7 +25,7 @@ if (!defined('WB_PATH')) exit("Cannot access this file directly");
 
 global $wb, $day, $month, $year, $action_types, $monthnames, $weekdays, $CALTEXT;
 
-require_once(__DIR__.'/functions.php');
+require_once('functions.php');
 
 $day = isset($_GET['day']) ? (int)$_GET['day'] : "";
 $dayview = isset($_GET['dayview']) ? (int)$_GET['dayview'] : 0;
@@ -37,7 +37,7 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 // range for a month
 $date_start = "$year-$month-1";
 $date_end = "$year-$month-".DaysCount($month,$year);
-if ($day == "" && $month == date("n") && $year == date("Y")) $day = date("j");
+
 ($month > 1) ? ($prevmonth = $month - 1) :  ($prevmonth = 12);
 ($month < 12) ? ($nextmonth = $month + 1) :  ($nextmonth = 1);
 ($month == 1) ? ($prevyear = $year - 1) : ($prevyear = $year);
@@ -46,7 +46,6 @@ if ($day == "" && $month == date("n") && $year == date("Y")) $day = date("j");
 $actions  = fillActionArray($date_start, $date_end, $section_id);
 $action_types = fillActionTypes($section_id);
 
-$IsBackend = ((isset($wb) || ($wb instanceof frontend))?false:true); // change Luisehahne
 if($detail == 1) {
   if($id == 0) {
     ShowActionDetails($actions, $section_id, $day, $month, $year, $show, $dayview);

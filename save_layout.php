@@ -29,11 +29,11 @@ require(WB_PATH.'/modules/admin.php');
 
 $page_id      = $admin->get_post('page_id');
 $section_id   = $admin->get_post('section_id');
-$type          = $admin->get_post('type');
+$type		  = $admin->get_post('type');
 
-$header         = $admin->get_post_escaped('header');
-$footer          = $admin->get_post_escaped('footer');
-$posttempl      = $admin->get_post_escaped('posttempl');
+$header   	  = $admin->get_post_escaped('header');
+$footer    	  = $admin->get_post_escaped('footer');
+$posttempl	  = $admin->get_post_escaped('posttempl');
 
 
 $sql = "UPDATE ";

@@ -21,9 +21,8 @@
 
 */
 
-require(dirname(dirname(__DIR__)).'/config.php');
+require('../../config.php');
 
-$print_info_banner = true;
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
 // include core functions of WB 2.7 to edit the optional module CSS files (frontend.css, backend.css)
@@ -43,9 +42,9 @@ $db = $database->query($sql);
 
 if ($db->numRows() > 0) {
    while ($rec = $db->fetchRow()) {
-      $header           = $rec["header"];
-      $footer           = $rec["footer"];
-      $posttempl        = $rec["posttempl"];
+      $header			= $rec["header"];
+	  $footer		 	= $rec["footer"];
+      $posttempl		= $rec["posttempl"];
    }
 }
 
@@ -55,23 +54,23 @@ $friendly = array('&lt;', '&gt;');
 ?>
 <h2><?php echo $TEXT['TEMPLATE']; ?></h2>
 <form name="modify_startday" method="post" action="<?php echo WB_URL; ?>/modules/procalendar/save_layout.php">
-  <input type="hidden" name="page_id" value="<?php echo $page_id; ?>"/>
-  <input type="hidden" name="section_id" value="<?php echo $section_id; ?>"/>
-  <input type="hidden" name="type" value="layout"/>
+  <input type="hidden" name="page_id" value="<?php echo $page_id; ?>">
+  <input type="hidden" name="section_id" value="<?php echo $section_id; ?>">
+  <input type="hidden" name="type" value="layout">
   <table cellpadding="2" cellspacing="1" border="0" width="98%" class="customfields">
     <tr>
       <td valign="top"><?php echo $TEXT['HEADER']; ?>:</td>
       <td colspan="2">
         <textarea name="header"><?php echo str_replace($raw, $friendly, $header); ?></textarea>
-      </td>
+      </td> 
     </tr>
      <tr>
       <td valign="top"><?php echo $TEXT['FOOTER']; ?>:</td>
       <td colspan="2">
         <textarea name="footer"><?php echo str_replace($raw, $friendly, $footer); ?></textarea>
       </td>
-    </tr>
-    <tr>
+    </tr>    
+	<tr>
     <tr>
       <td valign="top"><?php echo $TEXT['POST']; ?>:</td>
       <td colspan="2">

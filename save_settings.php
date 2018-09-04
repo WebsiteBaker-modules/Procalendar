@@ -21,7 +21,7 @@
 
 */
 
-require (dirname(dirname(__DIR__ )).'/config.php');
+require('../../config.php');
 
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
@@ -33,99 +33,99 @@ $section_id   = $admin->get_post('section_id');
 switch ($type) {
 
 case "change_eventgroup":
-    $group_id    = $admin->get_post('group_id');
-    $group_name  = $admin->get_post('group_name');
-    $delete      = $admin->get_post('delete');
-    $format      = $admin->get_post('action_background');
-    $dayformat   = $admin->get_post('dayformat');
-    if (!isset($dayformat)) $dayformat = 0;
+	$group_id    = $admin->get_post('group_id');
+	$group_name  = $admin->get_post('group_name');
+	$delete      = $admin->get_post('delete');
+	$format 	   = $admin->get_post('action_background');
+	$dayformat 	 = $admin->get_post('dayformat');
+	if (!isset($dayformat)) $dayformat = 0;
 
-    if ($delete)
+	if ($delete) 
   {
-        $sql = "DELETE FROM ".TABLE_PREFIX."mod_procalendar_eventgroups WHERE id=$group_id";
-        $database->query($sql);
-    }
-    else
+		$sql = "DELETE FROM ".TABLE_PREFIX."mod_procalendar_eventgroups WHERE id=$group_id";
+		$database->query($sql);
+	} 
+	else 
   {
-    if($group_name != "")
+    if($group_name != "") 
     {
-             if (($group_id == 0))
+ 			if (($group_id == 0)) 
       {
         //echo "INSERT -> page_id: $page_id - group_name: $group_name  <br>";
-                $sql = "INSERT INTO ";
-                $sql .= TABLE_PREFIX."mod_procalendar_eventgroups SET ";
-                $sql .= "section_id='$section_id', ";
-                $sql .= "name='$group_name', ";
-                $sql .= "format='$format', ";
-                $sql .= "format_days='$dayformat' ";
-            }
-      else
+				$sql = "INSERT INTO ";	
+				$sql .= TABLE_PREFIX."mod_procalendar_eventgroups SET ";	
+				$sql .= "section_id='$section_id', ";
+				$sql .= "name='$group_name', ";
+				$sql .= "format='$format', ";
+				$sql .= "format_days='$dayformat' ";
+			} 
+      else 
       {
-        //echo "UPDATE -> group_id: <br>";
-                $sql = "UPDATE ";
-                $sql .= TABLE_PREFIX."mod_procalendar_eventgroups SET ";
-                $sql .= "section_id='$section_id', ";
-                $sql .= "name='$group_name', ";
-                $sql .= "format='$format', ";
-                $sql .= "format_days='$dayformat' ";
-                $sql .= " WHERE id=$group_id";
-            }
+        //echo "UPDATE -> group_id: <br>"; 
+				$sql = "UPDATE ";
+				$sql .= TABLE_PREFIX."mod_procalendar_eventgroups SET ";	
+				$sql .= "section_id='$section_id', ";
+				$sql .= "name='$group_name', ";
+				$sql .= "format='$format', ";
+				$sql .= "format_days='$dayformat' ";
+				$sql .= " WHERE id=$group_id";
+			}
+			
+			$database->query($sql);
+		}
+	}
+	break;
+		
+	case "startd":
+		$startday     = $admin->get_post('startday');
+		$onedate      = $admin->get_post('onedate');
+		$usetime      = $admin->get_post('usetime');
+		$useformat    = $admin->get_post('useformat');
+		switch ($useformat) {
+		  case "dd.mm.yyyy":
+		     $useifformat = "d.m.Y";
+			 break;
+		  case "dd-mm-yyyy":
+		     $useifformat = "d-m-Y";
+			 break;
+		  case "dd/mm/yyyy":
+		     $useifformat = "d/m/Y";
+			 break;
+		  case "dd mm yyyy":
+		     $useifformat = "d m Y";
+			 break;
+		  case "mm.dd.yyyy":
+		     $useifformat = "m.d.Y";
+			 break;
+			case "mm. dd. yyyy":
+		     $useifformat = "m. d. Y";
+			 break;
+		  case "mm-dd-yyyy":
+		     $useifformat = "m-d-Y";
+			 break;
+		  case "mm/dd/yyyy":
+		     $useifformat = "m/d/Y";
+			 break;
+		  case "mm dd yyyy":
+		     $useifformat = "m d Y";
+			 break;
+		  case "yyyy.mm.dd":
+		     $useifformat = "Y.m.d";
+			 break;
+		  case "yyyy-mm-dd":
+		     $useifformat = "Y-m-d";
+			 break;
+		  case "yyyy/mm/dd":
+		     $useifformat = "Y/m/d";
+			 break;
+		  case "yyyy mm dd":
+		     $useifformat = "Y m d";
+			 break;
+		  default:
+		     $useifformat = "Y/m/d";
+		}
 
-            $database->query($sql);
-        }
-    }
-    break;
-
-    case "startd":
-        $startday     = $admin->get_post('startday');
-        $onedate      = $admin->get_post('onedate');
-        $usetime      = $admin->get_post('usetime');
-        $useformat    = $admin->get_post('useformat');
-        switch ($useformat) {
-          case "dd.mm.yyyy":
-             $useifformat = "d.m.Y";
-             break;
-          case "dd-mm-yyyy":
-             $useifformat = "d-m-Y";
-             break;
-          case "dd/mm/yyyy":
-             $useifformat = "d/m/Y";
-             break;
-          case "dd mm yyyy":
-             $useifformat = "d m Y";
-             break;
-          case "mm.dd.yyyy":
-             $useifformat = "m.d.Y";
-             break;
-            case "mm. dd. yyyy":
-             $useifformat = "m. d. Y";
-             break;
-          case "mm-dd-yyyy":
-             $useifformat = "m-d-Y";
-             break;
-          case "mm/dd/yyyy":
-             $useifformat = "m/d/Y";
-             break;
-          case "mm dd yyyy":
-             $useifformat = "m d Y";
-             break;
-          case "yyyy.mm.dd":
-             $useifformat = "Y.m.d";
-             break;
-          case "yyyy-mm-dd":
-             $useifformat = "Y-m-d";
-             break;
-          case "yyyy/mm/dd":
-             $useifformat = "Y/m/d";
-             break;
-          case "yyyy mm dd":
-             $useifformat = "Y m d";
-             break;
-          default:
-             $useifformat = "Y/m/d";
-        }
-
-        $sql = "UPDATE ";
+		$sql = "UPDATE ";
         $sql .= TABLE_PREFIX."mod_procalendar_settings SET "; // create rest of the sql-query
         $sql .= "startday='$startday', ";
         $sql .= "usetime='$usetime', ";
@@ -133,21 +133,22 @@ case "change_eventgroup":
         $sql .= "useformat='$useformat', ";
         $sql .= "useifformat='$useifformat' ";
         $sql .= " WHERE section_id=$section_id";
-
+      
         $database->query($sql);
-    break;
+	break;  		
 }
 
 if($database->is_error()) {
   $admin->print_error($database->get_error(), $js_back);
 } else {
-    if ($type == "change_eventgroup" ) {
-      $admin->print_success($TEXT['SUCCESS'], WB_URL."/modules/procalendar/modify_settings.php?page_id=".$page_id."&section_id=".$section_id);
-    } else {
-      $admin->print_success($MESSAGE['PAGES']['SAVED'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id);
-    }
+	if ($type == "change_eventgroup" ) { 
+	  $admin->print_success($TEXT['SUCCESS'], WB_URL."/modules/procalendar/modify_settings.php?page_id=".$page_id."&section_id=".$section_id);
+	} else {
+	  $admin->print_success($MESSAGE['PAGES']['SAVED'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id);
+	}
 }
 
 
 $admin->print_footer();
 
+?>
